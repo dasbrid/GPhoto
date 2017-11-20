@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PageIndicator">
+        <attr name="selectedsize" format="integer" />
+        <attr name="unselectedsize" format="integer" />
+        <attr name="selectedcolor" format="integer" />
+        <attr name="unselectedcolor" format="integer" />
+        <attr name="margin" format="integer"/>
+    </declare-styleable>
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="albumthumb_button_text_size">16sp</dimen>
+    <dimen name="albumthumb_albumname_text_size">16sp</dimen>
+    <color name="albumthumb_background_color">#666666FF</color>
+    <color name="albumsgrid_background_color">#9911FFFF</color>
+
+    <dimen name="grid_column_width">150dp</dimen>
+
+    <dimen name="thumb_size">150dp</dimen>
+
+    <integer name="imagecheckbox_scale">1</integer>
+
+    <dimen name="thumb_bottom_button_marginBottom">2dp</dimen>
+    <dimen name="thumb_button_padding">1dp</dimen>
+
+    <dimen name="photo_button_padding">5dp</dimen>
+
+    <dimen name="tabs_text_size">24sp</dimen>
+    <dimen name="radioOptionsTextSize">18sp</dimen>
+    <dimen name="tabs_text_margin_bottom">10dp</dimen>
+
+    <dimen name="photosbydate_button_text_size">16sp</dimen>
+    <dimen name="photosbydate_button_padding">5dp</dimen>
+
+    <integer name="albumgrid_number_columns">2</integer>
+</resources>

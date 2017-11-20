@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:keepScreenOn="true"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp" >
+
+    <asbridged.me.uk.gphoto.classes.SlideshowViewPager
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/slideshowpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:onClick="btnPhotoClicked"
+    />
+<RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="64dp"
+>
+    <Button android:id="@+id/btnPhotoStartSlideshow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/photo_button_padding"
+            android:onClick="btnPhotoStartSlideshowClicked"
+            android:text="Start Slideshow"
+    />
+    <Button android:id="@+id/btnPhotoDelete"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Delete"
+            android:onClick="btnPhotoDeleteClicked"
+
+            android:layout_toRightOf="@id/btnPhotoStartSlideshow"
+            android:padding="@dimen/photo_button_padding"
+    />
+    <Button android:id="@+id/btnPhotoShare"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Share"
+            android:onClick="btnPhotoShareClicked"
+
+            android:layout_toRightOf="@id/btnPhotoDelete"
+            android:padding="@dimen/photo_button_padding"
+    />
+    <Button android:id="@+id/btnSlideShowSpeed"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Slideshow Speed"
+            android:onClick="btnSlideShowSpeedClicked"
+
+            android:layout_below="@id/btnPhotoStartSlideshow"
+            android:padding="@dimen/photo_button_padding"
+    />
+    <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioGroupShuffleSlideshow"
+            android:layout_below="@id/btnSlideShowSpeed"
+            android:layout_marginTop="12dp"
+            android:padding="@dimen/photo_button_padding"
+    >
+        <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Play in order"
+                android:id="@+id/rbShuffleOff"
+                android:checked="true"
+                android:textSize="@dimen/radioOptionsTextSize"
+        />
+        <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="Play random order"
+                android:id="@+id/rbShuffleOn"
+                android:checked="false"
+                android:textSize="@dimen/radioOptionsTextSize"
+        />
+    </RadioGroup>
+</RelativeLayout>
+</RelativeLayout>

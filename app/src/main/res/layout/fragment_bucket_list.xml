@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+>
+    <TextView
+            android:id="@+id/textViewBuckets"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/tabs_text_size"
+            android:layout_centerHorizontal="true"
+            android:text="Choose photo albums"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/tabs_text_margin_bottom"
+            />
+    <ListView
+            android:id="@+id/lvBucketList"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:choiceMode="multipleChoice"
+            android:layout_below="@id/textViewBuckets"
+    >
+    </ListView>
+</RelativeLayout>
