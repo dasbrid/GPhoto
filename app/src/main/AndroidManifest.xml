@@ -12,8 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.PhotosByDateActivity">
-        </activity>
         <activity android:name=".activities.MultiCheckablePhotoGridActivity"></activity>
         <activity android:name=".activities.SlideshowActivity"></activity>
         <activity android:name=".activities.GetPermissionsActivity"></activity>

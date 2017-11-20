@@ -6,25 +6,20 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.activities.GetPermissionsActivity;
 import asbridged.me.uk.gphoto.activities.MultiCheckablePhotoGridActivity;
 import asbridged.me.uk.gphoto.activities.SlideshowActivity;
-import asbridged.me.uk.gphoto.adapter.BucketListAdapter;
+import asbridged.me.uk.gphoto.adapter.AlbumListAdapter;
 import asbridged.me.uk.gphoto.classes.Album;
 import asbridged.me.uk.gphoto.helper.LogHelper;
 import asbridged.me.uk.gphoto.helper.Utils;
@@ -37,17 +32,17 @@ public class AlbumsDetailFragment extends OptionDynamicDetailFragment {
 
     private static final String TAG = LogHelper.makeLogTag(AlbumsDetailFragment.class);
 
-    private ArrayList<Album> bucketList;
-    ListView lvBucketList;
-    BucketListAdapter bucketAdapter;
+    private ArrayList<Album> albumList;
+    ListView lvAlbumList;
+    AlbumListAdapter albumAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_detail_albums, container, false);
 
-        lvBucketList = (ListView)v.findViewById(R.id.lvBucketList);
+        lvAlbumList = (ListView)v.findViewById(R.id.lvBucketList);
 
-        lvBucketList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        lvAlbumList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
@@ -59,9 +54,9 @@ public class AlbumsDetailFragment extends OptionDynamicDetailFragment {
                 // No explanation needed, we can request the permission.
                 startActivity(new Intent(getActivity(), GetPermissionsActivity.class));
             } else {
-                bucketList = Utils.getAlbumsFromMedia(getContext());
-                bucketAdapter = new BucketListAdapter(getContext(), bucketList);
-                lvBucketList.setAdapter(bucketAdapter);
+                albumList = Utils.getAlbumsFromMedia(getContext());
+                albumAdapter = new AlbumListAdapter(getContext(), albumList);
+                lvAlbumList.setAdapter(albumAdapter);
             }
         }
 
@@ -75,8 +70,8 @@ public class AlbumsDetailFragment extends OptionDynamicDetailFragment {
     }
 
     public void doSlideshow() {
-        // start the slideshow activity for the selected bucket
-        SparseBooleanArray checked = lvBucketList.getCheckedItemPositions();
+        // start the slideshow activity for the selected album
+        SparseBooleanArray checked = lvAlbumList.getCheckedItemPositions();
         String albumNames = "";
         ArrayList<Album> selectedItems = new ArrayList<Album>();
         ArrayList<String> selectedBucketIDs = new ArrayList<String>();
@@ -84,7 +79,7 @@ public class AlbumsDetailFragment extends OptionDynamicDetailFragment {
             // Item position in adapter
             int position = checked.keyAt(i);
             if (checked.valueAt(i)) {
-                Album selectedItem = bucketAdapter.getAlbum(position);
+                Album selectedItem = albumAdapter.getAlbum(position);
                 if (!albumNames.isEmpty())
                     albumNames = albumNames + ", ";
                 albumNames = albumNames + selectedItem.getName();
@@ -105,7 +100,7 @@ public class AlbumsDetailFragment extends OptionDynamicDetailFragment {
 
 
     public void viewAlbum() {
-        SparseBooleanArray checked = lvBucketList.getCheckedItemPositions();
+        SparseBooleanArray checked = lvAlbumList.getCheckedItemPositions();
         String albumNames = "";
         ArrayList<Album> selectedItems = new ArrayList<Album>();
         ArrayList<String> selectedBucketIDs = new ArrayList<String>();
@@ -113,7 +108,7 @@ public class AlbumsDetailFragment extends OptionDynamicDetailFragment {
             // Item position in adapter
             int position = checked.keyAt(i);
             if (checked.valueAt(i)) {
-                Album selectedItem = bucketAdapter.getAlbum(position);
+                Album selectedItem = albumAdapter.getAlbum(position);
                 if (!albumNames.isEmpty())
                     albumNames = albumNames + ", ";
                 albumNames = albumNames + selectedItem.getName();
