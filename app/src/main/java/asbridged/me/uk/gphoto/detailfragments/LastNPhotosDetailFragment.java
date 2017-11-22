@@ -43,10 +43,13 @@ public class LastNPhotosDetailFragment extends OptionDynamicDetailFragment {
         button.setOnClickListener(this);
         button = (Button) v.findViewById(R.id.btnShowPictures);
         button.setOnClickListener(this);
+        button = (Button) v.findViewById(R.id.btnShowPicturesShuffled);
+        button.setOnClickListener(this);
 
         return v;
     }
 
+    @Override
     public void viewAlbum() {
         int numPhotos = ncLastNControl.getNumber();
 
@@ -62,7 +65,8 @@ public class LastNPhotosDetailFragment extends OptionDynamicDetailFragment {
         this.startActivity(intent);
     }
 
-    public void doSlideshow() {
+    @Override
+    public void doSlideshow(boolean shuffled) {
         int numPhotos = ncLastNControl.getNumber();
 
         // start the slideshow activity
@@ -73,6 +77,7 @@ public class LastNPhotosDetailFragment extends OptionDynamicDetailFragment {
         intent.putExtra("month", -1);
         intent.putExtra("year", -1);
         intent.putExtra("numPhotos", numPhotos);
+        intent.putExtra("playInRandomOrder", shuffled);
         this.startActivity(intent);
     }
 }

@@ -46,11 +46,14 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
         button.setOnClickListener(this);
         button = (Button) v.findViewById(R.id.btnShowPictures);
         button.setOnClickListener(this);
+        button = (Button) v.findViewById(R.id.btnShowPicturesShuffled);
+        button.setOnClickListener(this);
 
         return v;
     }
 
-    public void doSlideshow() {
+    @Override
+    public void doSlideshow(boolean shuffled) {
         int selectedId=rg1.getCheckedRadioButtonId();
         if (selectedId == -1)
             selectedId = rg2.getCheckedRadioButtonId();

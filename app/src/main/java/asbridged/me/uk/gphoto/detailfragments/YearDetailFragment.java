@@ -45,6 +45,8 @@ public class YearDetailFragment extends OptionDynamicDetailFragment {
         button.setOnClickListener(this);
         button = (Button) v.findViewById(R.id.btnShowPictures);
         button.setOnClickListener(this);
+        button = (Button) v.findViewById(R.id.btnShowPicturesShuffled);
+        button.setOnClickListener(this);
 
         return v;
     }
@@ -66,7 +68,8 @@ public class YearDetailFragment extends OptionDynamicDetailFragment {
         this.startActivity(intent);
     }
 
-    public void doSlideshow() {
+    @Override
+    public void doSlideshow(boolean shuffled) {
         // get the Year
         int year = ycYear.getNumber();
 

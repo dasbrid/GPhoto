@@ -49,10 +49,13 @@ public abstract class OptionDynamicDetailFragment extends Fragment implements an
         switch(view.getId()){
             //here you need the title of the button i.e. its title in the xml file
             case R.id.btnShowSlideshow:
-                doSlideshow();
+                doSlideshow(false);
                 break;
             case R.id.btnShowPictures:
                 viewAlbum();
+                break;
+            case R.id.btnShowPicturesShuffled:
+                doSlideshow(true);
                 break;
         }
     }

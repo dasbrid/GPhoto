@@ -21,5 +21,15 @@
         android:padding="@dimen/photosbydate_button_padding"
         android:textSize="@dimen/photosbydate_button_text_size"
         />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Shuffled"
+        android:drawableLeft="@drawable/icon_view_photos"
+        android:id="@+id/btnShowPicturesShuffled"
+        android:layout_toEndOf="@id/btnShowPictures"
+        android:padding="@dimen/photosbydate_button_padding"
+        android:textSize="@dimen/photosbydate_button_text_size"
+        />
 
 </RelativeLayout>

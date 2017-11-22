@@ -20,11 +20,11 @@ import asbridged.me.uk.gphoto.classes.SlideshowSpeedDialog;
 import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.adapter.SlideshowPagerAdapter;
 import asbridged.me.uk.gphoto.helper.AppConstant;
+import asbridged.me.uk.gphoto.helper.LogHelper;
 import asbridged.me.uk.gphoto.helper.Utils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Timer;
 
 /**
  * Created by David on 04/11/2015.
@@ -34,54 +34,61 @@ public class SlideshowActivity extends Activity
         implements
         SlideshowViewPager.OnTouchedListener,
         DeleteConfirmDialog.DeleteDialogOKListener,
-        SlideshowSpeedDialog.SlideshowSpeedChangedListener,
-        ToggleButton.OnCheckedChangeListener,
-        RadioGroup.OnCheckedChangeListener
+        SlideshowSpeedDialog.SlideshowSpeedChangedListener
 {
 
-    private final static String TAG = "SlideshowActivity";
+    private static final String TAG = LogHelper.makeLogTag(SlideshowActivity.class);
 
     private int numPages;
     private ArrayList<File> filelist;
+    // Flag used when automatically going to the next image
+    // If slideshowOn is false then we stay on the current image
+    // this is saved in onSaveInstanceState and read in OnResume
     private boolean slideshowOn;
-    private boolean slideshowSharedState;
+
+
+    // Flag used when automatically going to the next image
+    // Choose next image randomly or sequentially
+    // this is saved in onSaveInstanceState and read in OnResume
     private boolean shuffleOn;
+
+
     private boolean shuffleSharedState;
+    private boolean slideshowSharedState;
+
+    // Flag is set when a photo has been deleted
+    // This is returned to the calling activity (in returnIntent) when "onBack" is called
     private boolean modified;
 
-    // The time (in seconds) for which the navigation controls are visible after screen interaction.
-    private static int SHOW_NAVIGATION_CONTROLS_TIME = 3;
-    // Delay between slides
-    //private static int SLIDE_SHOW_DELAY;
+    // The time (in seconds) for which the controls are visible after screen interaction.
+    private static int SHOW_CONTROLS_TIME_SECS = 3;
 
-    private Timer timer;
+
     private int page = 0;
 
     private Button btnPhotoShare;
-    private Button btnPhotoDelete;
-    private Button btnStartSlideshow;
+    private ImageButton btnPhotoDelete;
+    private ImageButton btnStartSlideshow;
     private Button btnSlideshowSpeed;
-    private RadioButton rbtnShuffleOn;
-    private RadioButton rbtnShuffleOff;
-    private RadioGroup radioGroupShuffle;
 
     private SlideshowPagerAdapter mSlideshowPagerAdapter;
     private SlideshowViewPager mViewPager;
 
     private Handler handler = new Handler();
 
-    private Runnable runnable = new Runnable() {
+    private Runnable nextpageRunnable = new Runnable() {
         @Override
         public void run() {
             if (slideshowOn == false)
                 return;
+            LogHelper.i(TAG, "shuffleOn", shuffleOn);
             if (shuffleOn && filelist.size() > 1) {
                 int newpage = page;
                 Random r = new Random();
                 while (newpage == page) {
                     newpage = r.nextInt(filelist.size());
                 }
-                Log.d(TAG, "page = "+page+"chosen random page "+newpage);
+                LogHelper.d(TAG, "page = "+page+"chosen random page "+newpage);
                 page = newpage;
             } else {
                 Log.d(TAG, "page = "+page+" choosing next page");
@@ -96,7 +103,6 @@ public class SlideshowActivity extends Activity
             // to keep the slideshow going, start the timer again
             int ssd = Utils.getSlideshowDelay(getApplicationContext());
             handler.postDelayed(this, ssd * 1000);
-
         }
     };
 
@@ -122,163 +128,80 @@ public class SlideshowActivity extends Activity
         btnStartSlideshow.setVisibility(View.INVISIBLE);
         btnPhotoDelete.setVisibility(View.INVISIBLE);
         btnPhotoShare.setVisibility(View.INVISIBLE);
-        radioGroupShuffle.setVisibility(View.INVISIBLE);
-        btnSlideshowSpeed.setVisibility(View.INVISIBLE);
         page = mViewPager.getCurrentItem();
         startSlideshow();
     }
 
-    // called back from the pager when touched
+    /**
+     * Called from the pager when touched
+     * This stops the slideshow (if playing) on the current slide
+     * and displays control buttons and android navigation bar for n seconds
+     */
     public void onTouched() {
-        stopSlideshow();
-        btnStartSlideshow.setVisibility(View.VISIBLE);
-        btnPhotoDelete.setVisibility(View.VISIBLE);
-        btnPhotoShare.setVisibility(View.VISIBLE);
-        radioGroupShuffle.setVisibility(View.VISIBLE);
-        btnSlideshowSpeed.setVisibility(View.VISIBLE);
-    }
-
-    private void stopSlideshow() {
+        LogHelper.i(TAG, "onTouched");
         slideshowOn = false;
+        showControlsAndNavigationForNSeconds();
     }
 
     private void startSlideshow() {
         slideshowOn = true;
-        handler.postDelayed(runnable, Utils.getSlideshowDelay(this));
+        handler.postDelayed(nextpageRunnable, Utils.getSlideshowDelay(this));
     }
 
+    /**
+     * We save the following properties, so that when the activity is recreated we continue
+     * in the same state:
+     * slideshowOn (are we playing slides or paused, viewing a single image)
+     * shuffleOn (playing randomly or sequentially?)
+     * currentPage (the current photo being viewed
+     * @param savedInstanceState
+     */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);        // Save the slideshow status
+        LogHelper.v(TAG,"onSaveInstanceState");
+        LogHelper.i(TAG, "Saving values :slideshowOn=", slideshowOn,"; shuffleOn=",shuffleOn,"; currentPage=",mViewPager.getCurrentItem());
         savedInstanceState.putBoolean("slideshowOn", slideshowOn);
         savedInstanceState.putBoolean("shuffleOn", shuffleOn);
         savedInstanceState.putInt("currentPage", mViewPager.getCurrentItem());
     }
 
+    /** Override of onStop for the activity
+     * We make a copy of the current slideshow state, and then turn the slideshow off
+     * Not sure why we turn it off. Maybe because the runnable will still trigger after the activity is stopped????????
+     */
     @Override
     public void onStop() {
         super.onStop();
+        LogHelper.i(TAG, "onStop");
         slideshowSharedState= slideshowOn;
         slideshowOn = false;
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.d(TAG, "onRestoreInstanceState");
-        // Always call the superclass so it can restore the view hierarchy
-        super.onRestoreInstanceState(savedInstanceState);
-        slideshowSharedState = savedInstanceState.getBoolean("slideshowOn");
-        shuffleSharedState = savedInstanceState.getBoolean("shuffleOn");
-        page = savedInstanceState.getInt("currentPage");
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra("modified",modified);
-        setResult(Activity.RESULT_OK,returnIntent);
-        finish();
-    }
-
-    // Called after starting or when resuming (no saved instance state)
-    @Override
-    protected void onResume() {
-        super.onResume();  // Always call the superclass method first
-        Log.v(TAG, "onResume");
-        // get the saved (in memory state of the slideshow)
-        slideshowOn = slideshowSharedState;
-        shuffleOn = shuffleSharedState;
-        mViewPager.setCurrentItem(page);
-        rbtnShuffleOn.setChecked(shuffleOn);
-        rbtnShuffleOff.setChecked(!shuffleOn);
-
-        if (slideshowOn) {
-            startSlideshow();
-            btnStartSlideshow.setVisibility(View.INVISIBLE);
-            btnPhotoDelete.setVisibility(View.INVISIBLE);
-            btnPhotoShare.setVisibility(View.INVISIBLE);
-            radioGroupShuffle.setVisibility(View.INVISIBLE);
-            btnSlideshowSpeed.setVisibility(View.INVISIBLE);
-        } else {
-            btnStartSlideshow.setVisibility(View.VISIBLE);
-            btnPhotoDelete.setVisibility(View.VISIBLE);
-            btnPhotoShare.setVisibility(View.VISIBLE);
-            radioGroupShuffle.setVisibility(View.VISIBLE);
-            btnSlideshowSpeed.setVisibility(View.VISIBLE);
-        }
-        // Code to make layout fullscreen. In onResume, otherwise when activity comes back it will revert to non-fullscreen
-        // http://developer.android.com/training/system-ui/status.html
-        // hide the status bar and application bar (top of the screen) with SYSTEM_UI_FLAG_FULLSCREEN
-        // hide the navigation bar (back, home at bottom of screen) with SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        // SYSTEM_UI_FLAG_LAYOUT_STABLE puts the navigation controls on top of the activity layout (stays fullscreen)
-        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(uiOptions);
-        // You should never show the action bar (application bar) if the
-        // status bar is hidden, so hide that too if necessary.
-//// GIVES NULL REFERENCE       ActionBar actionBar = getActionBar();
-//// GIVES NULL REFERENCE EXCEPTION       actionBar.hide();
-    }
-
-
-    @Override
-    public void onCheckedChanged(RadioGroup group, int checkedId) {
-        if (checkedId != -1) {
-            if (checkedId == R.id.rbShuffleOn)
-                shuffleOn = true;
-            else
-                shuffleOn = false;
-            Log.d(TAG, "shuffle turned "+(shuffleOn?"on":"off"));
-        }
-    }
-
-
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        Log.d(TAG, "shuffle turned "+(isChecked?"on":"off"));
-        shuffleOn = isChecked;
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.v(TAG,"onCreate");
+        LogHelper.v(TAG,"onCreate");
 
+        // Check we have necessary permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
             int permissionCheck = ContextCompat.checkSelfPermission(SlideshowActivity.this,
                     Manifest.permission.READ_EXTERNAL_STORAGE);
             if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                // We do not have necessary permission. Must ask the user
-                Toast.makeText(this, "Permission not granted", Toast.LENGTH_SHORT).show();
-                // No explanation needed, we can request the permission.
-
+                // We do not have necessary permission. Start activity to ask the user
                 startActivity(new Intent(SlideshowActivity.this, GetPermissionsActivity.class));
                 finish();
                 return;
             }
         }
 
-        // SLIDE_SHOW_DELAY = Integer.parseInt(Utils.getSlideshowDelay(this)); // in seconds
-        // if we are starting for first time (not restarting)
-        if (savedInstanceState == null) {
-            Log.v("TAG","Saved instance state == null");
-            slideshowSharedState = true;
-            slideshowOn = true;
-            shuffleSharedState = true;
-        }
-
         setContentView(R.layout.activity_slideshow);
-        btnStartSlideshow = (Button) findViewById(R.id.btnPhotoStartSlideshow);
-        btnPhotoDelete = (Button) findViewById(R.id.btnPhotoDelete);
-        btnPhotoShare = (Button) findViewById(R.id.btnPhotoShare);
+        btnStartSlideshow = (ImageButton) findViewById(R.id.imgbtnPhotoStartSlideshow);
+        btnPhotoDelete = (ImageButton) findViewById(R.id.imgbtnPhotoDelete);
+        btnPhotoShare = (Button) findViewById(R.id.imgbtnPhotoShare);
         btnSlideshowSpeed = (Button) findViewById(R.id.btnSlideShowSpeed);
-        radioGroupShuffle = (RadioGroup) findViewById(R.id.radioGroupShuffleSlideshow);
-        rbtnShuffleOff = (RadioButton) findViewById(R.id.rbShuffleOff);
-        rbtnShuffleOn = (RadioButton) findViewById(R.id.rbShuffleOn);
-
-
-        radioGroupShuffle.setOnCheckedChangeListener(this);
 
         mSlideshowPagerAdapter = new SlideshowPagerAdapter(this);
         mViewPager = (SlideshowViewPager) findViewById(R.id.slideshowpager);
@@ -286,9 +209,182 @@ public class SlideshowActivity extends Activity
 
         mViewPager.setOnTouchedListener(this);
 
+        // if we are starting for first time (not restarting)
+        if (savedInstanceState == null) {
+            Log.v("TAG","Saved instance state == null");
+            slideshowSharedState = true;
+            slideshowOn = true;
+            //shuffleSharedState = true;
+        }
+
         Bundle parameters = getIntent().getExtras();
-        String albumFolder = parameters.getString("folderAbsolutePath");
+
+        // playInRandomOrder is set by the fragment (currently only lastNFragment)
+        // to signal that we should play in random order, not sequential
+        boolean playInRandomOrder = parameters.getBoolean("playInRandomOrder");
+        shuffleSharedState = playInRandomOrder; //// NOT SURE
+
+        // Position is ONLY used when coming from the Album grid activity, so say "Show this specific photo"
         Integer positionParameter = parameters.getInt("position");
+        if (positionParameter != -1)
+        {
+            // we have been passed a specific photo index. Show the photo and turn the slideshow off
+            page = positionParameter;
+            slideshowSharedState = false;
+        } else {
+            page = 0;
+            slideshowSharedState = true;
+        }
+
+        LogHelper.i(TAG, "Values from activity PARAMETERS: shuffled=",playInRandomOrder,"; position=",positionParameter);
+
+        filelist = getFilelist (parameters);
+
+        if (filelist == null)
+        {
+            filelist = new ArrayList<File>();
+            Toast.makeText(this,"No pictures found", Toast.LENGTH_LONG).show();
+        }
+
+        mSlideshowPagerAdapter.setFileList(filelist);
+        mSlideshowPagerAdapter.notifyDataSetChanged();
+
+        modified = false;
+        numPages = filelist.size();
+    }
+
+    /**
+     * Load the slideshow state from the saved instance state.
+     * So that the activity starts in the same state as we left it
+     * @param savedInstanceState
+     */
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        LogHelper.i(TAG, "onRestoreInstanceState");
+        // Always call the superclass so it can restore the view hierarchy
+        super.onRestoreInstanceState(savedInstanceState);
+        slideshowSharedState = savedInstanceState.getBoolean("slideshowOn");
+        shuffleSharedState = savedInstanceState.getBoolean("shuffleOn");
+        page = savedInstanceState.getInt("currentPage");
+        LogHelper.i(TAG, "Values from savedInstanceState:slideshowOn=", slideshowSharedState,"; shuffleOn=",shuffleSharedState,"; currentPage=",page);
+    }
+
+    /**
+     * The only special thing here is that we pass the information
+     * back to say wheter a photo has been deleted
+     */
+    @Override
+    public void onBackPressed() {
+        LogHelper.i(TAG, "onBackPressed");
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("modified",modified);
+        setResult(Activity.RESULT_OK,returnIntent);
+        finish();
+    }
+
+    /**
+     * Called after starting or when resuming (no saved instance state)
+     *
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();  // Always call the superclass method first
+        LogHelper.i(TAG, "onResume");
+        // get the saved (in memory state of the slideshow)
+        slideshowOn = slideshowSharedState;
+        shuffleOn = shuffleSharedState;
+        mViewPager.setCurrentItem(page);
+
+        if (slideshowOn) {
+            startSlideshow();
+            /*
+            btnStartSlideshow.setVisibility(View.INVISIBLE);
+            btnPhotoDelete.setVisibility(View.INVISIBLE);
+            btnPhotoShare.setVisibility(View.INVISIBLE);
+            */
+        } else {
+            /*
+            btnStartSlideshow.setVisibility(View.VISIBLE);
+            btnPhotoDelete.setVisibility(View.VISIBLE);
+            btnPhotoShare.setVisibility(View.VISIBLE);
+            */
+        }
+        hideControlsAndNavigation();
+        // You should never show the action bar (application bar) if the
+        // status bar is hidden, so hide that too if necessary.
+//// GIVES NULL REFERENCE       ActionBar actionBar = getActionBar();
+//// GIVES NULL REFERENCE EXCEPTION       actionBar.hide();
+    }
+
+    /**
+     * Show the play, delete and share controls, togoether with the android nagigation
+     * A runable will be called after n seconds to clear the controls
+     */
+    private void showControlsAndNavigationForNSeconds() {
+
+        btnStartSlideshow.setVisibility(View.VISIBLE);
+        btnPhotoDelete.setVisibility(View.VISIBLE);
+        btnPhotoShare.setVisibility(View.VISIBLE);
+
+        View decorView = getWindow().getDecorView();
+        int uiOptions =
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        |View.SYSTEM_UI_FLAG_FULLSCREEN  // hide staus bar (we want to hide the status bar)
+                // |View.SYSTEM_UI_FLAG_HIDE_NAVIGATION  // DON'T hide navigation
+                // |View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                ;
+
+        decorView.setSystemUiVisibility(uiOptions);
+
+        new Handler().postDelayed(new Runnable() {
+                                      @Override
+                                      public void run() {
+                                          hideControlsAndNavigation();
+                                      }
+                                  },
+                SHOW_CONTROLS_TIME_SECS*1000);
+    }
+
+    /**
+     * Go back to imersive mode, with control buttons hidden
+     * This is called by the runnable after the contrills have been shown for n seconds
+     */
+    private void hideControlsAndNavigation() {
+        btnStartSlideshow.setVisibility(View.INVISIBLE);
+        btnPhotoDelete.setVisibility(View.INVISIBLE);
+        btnPhotoShare.setVisibility(View.INVISIBLE);
+
+
+        // Code to make layout fullscreen. In onResume, otherwise when activity comes back it will revert to non-fullscreen
+        // http://developer.android.com/training/system-ui/status.html
+        // hide the status bar and application bar (top of the screen) with SYSTEM_UI_FLAG_FULLSCREEN
+        // hide the navigation bar (back, home at bottom of screen) with SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        // SYSTEM_UI_FLAG_LAYOUT_STABLE puts the navigation controls on top of the activity layout (stays fullscreen)
+        int uiOptions =
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | // hide navigation
+                        View.SYSTEM_UI_FLAG_FULLSCREEN | // hide staus bar
+                        View.SYSTEM_UI_FLAG_IMMERSIVE;
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(uiOptions);
+    }
+
+
+
+    /**
+     * Get the list of files to show, based on the parameter bundle
+     * @param parameters
+     * @return list of files
+     */
+    private ArrayList<File>  getFilelist(Bundle parameters) {
+
+        ArrayList<File> filelist;
+        String albumFolder = parameters.getString("folderAbsolutePath");
+
         String albumType = parameters.getString("albumType");
         int albumMonth = parameters.getInt("month");
         int albumYear = parameters.getInt("year");
@@ -305,19 +401,6 @@ public class SlideshowActivity extends Activity
         } else if (albumType.equals("lastNPhotos")) {
             numPhotos = parameters.getInt("numPhotos");
         }
-        Log.d(TAG, "positionParameter = "+positionParameter);
-        if (positionParameter != -1)
-        {
-            // we have been passed a specific photo index.
-            // show the photo and slideshow off
-            page = positionParameter;
-            slideshowSharedState = false;
-        } else {
-            page = 0;
-            slideshowSharedState = true;
-        }
-
-        Log.d("DAVE", "displaying photos for " + albumMonth +"/" + albumYear);
 
         if (albumType.equals("lastYear")) {
             filelist = Utils.getPhotosLastYear(this);
@@ -332,7 +415,6 @@ public class SlideshowActivity extends Activity
         } else if (albumType.equals("fromDate")) {
             filelist = Utils.getMediaFromDate(this,albumDay, albumMonth, albumYear);
         } else if (albumType.equals("allPhotos")) {
-            // ALL files
             filelist = Utils.getAllMedia(this);
         }
         else if (albumMonth == -1 && albumYear != -1) {
@@ -344,24 +426,12 @@ public class SlideshowActivity extends Activity
         } else {
             filelist = Utils.getMediaInMonth(this, albumMonth, albumYear);
         }
-
-
-        if (filelist == null)
-        {
-            filelist = new ArrayList<File>();
-            Toast.makeText(this,"No pictures found", Toast.LENGTH_LONG).show();
-        }
-
-        mSlideshowPagerAdapter.setFileList(filelist);
-        mSlideshowPagerAdapter.notifyDataSetChanged();
-
-        modified = false;
-        numPages = filelist.size();
+        return filelist;
     }
 
-    // button delete clicked.
+    // button slide show spped clicked
     public void btnSlideShowSpeedClicked(View v) {
-    // show confirm dialog
+    // show dialog
     FragmentManager fm = getFragmentManager();
     SlideshowSpeedDialog slideshowspeeddialog = new SlideshowSpeedDialog();
     Bundle args = new Bundle();
@@ -414,5 +484,4 @@ public class SlideshowActivity extends Activity
 
         startActivity(Intent.createChooser(emailIntent, "Send mail:"));
     }
-
 }

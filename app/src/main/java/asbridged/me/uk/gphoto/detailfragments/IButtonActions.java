@@ -5,6 +5,6 @@ package asbridged.me.uk.gphoto.detailfragments;
  */
 
 public interface IButtonActions {
-    void doSlideshow();
+    void doSlideshow(boolean shuffled);
     void viewAlbum();
 }

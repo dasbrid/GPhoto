@@ -65,11 +65,14 @@ public class AlbumsDetailFragment extends OptionDynamicDetailFragment {
         button.setOnClickListener(this);
         button = (Button) v.findViewById(R.id.btnShowPictures);
         button.setOnClickListener(this);
+        button = (Button) v.findViewById(R.id.btnShowPicturesShuffled);
+        button.setOnClickListener(this);
 
         return v;
     }
 
-    public void doSlideshow() {
+    @Override
+    public void doSlideshow(boolean shuffled) {
         // start the slideshow activity for the selected album
         SparseBooleanArray checked = lvAlbumList.getCheckedItemPositions();
         String albumNames = "";
