@@ -81,6 +81,7 @@ public class FromDateDetailFragment extends OptionDynamicDetailFragment {
         intent.putExtra("month", month);
         intent.putExtra("year", year);
         intent.putExtra("day", day);
+        intent.putExtra("playInRandomOrder", shuffled);
         this.startActivity(intent);
     }
 }

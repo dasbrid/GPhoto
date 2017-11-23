@@ -67,6 +67,7 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
             intent.putExtra("position", -1);
             intent.putExtra("month", -1);
             intent.putExtra("year", -1);
+            intent.putExtra("playInRandomOrder", shuffled);
             this.startActivity(intent);
             return;
         } else if (selectedId == R.id.rbLastYear) {
@@ -75,6 +76,7 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
             intent.putExtra("position", -1);
             intent.putExtra("month", -1);
             intent.putExtra("year", -1);
+            intent.putExtra("playInRandomOrder", shuffled);
             this.startActivity(intent);
             return;
         }
@@ -93,9 +95,8 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
         intent.putExtra("month", month);
         intent.putExtra("year", year);
         intent.putExtra("day", day);
+        intent.putExtra("playInRandomOrder", shuffled);
         this.startActivity(intent);
-
-        //TODO: Last Year, All Photos
     }
 
     public void getStartDateAndAlbumName(int selectedId) {

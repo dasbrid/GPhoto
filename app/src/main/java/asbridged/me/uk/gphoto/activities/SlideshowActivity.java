@@ -10,13 +10,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.View;
 import android.widget.*;
 import asbridged.me.uk.gphoto.classes.DeleteConfirmDialog;
 import asbridged.me.uk.gphoto.classes.SlideshowViewPager;
-import asbridged.me.uk.gphoto.classes.SlideshowSpeedDialog;
 import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.adapter.SlideshowPagerAdapter;
 import asbridged.me.uk.gphoto.helper.AppConstant;
@@ -33,11 +31,13 @@ import java.util.Random;
 public class SlideshowActivity extends Activity
         implements
         SlideshowViewPager.OnTouchedListener,
-        DeleteConfirmDialog.DeleteDialogOKListener,
-        SlideshowSpeedDialog.SlideshowSpeedChangedListener
+        DeleteConfirmDialog.DeleteDialogOKListener
 {
 
     private static final String TAG = LogHelper.makeLogTag(SlideshowActivity.class);
+
+    private final int MIN_SLIDESHOW_DELAY_SECS = 1;
+    private final int MAX_SLIDESHOW_DELAY_SECS = 10;
 
     private int numPages;
     private ArrayList<File> filelist;
@@ -66,10 +66,11 @@ public class SlideshowActivity extends Activity
 
     private int page = 0;
 
-    private Button btnPhotoShare;
+    private ImageButton btnPhotoShare;
     private ImageButton btnPhotoDelete;
     private ImageButton btnStartSlideshow;
-    private Button btnSlideshowSpeed;
+    private Button btnSlideshowIncreaseSpeed;
+    private Button btnSlideshowDecreaseSpeed;
 
     private SlideshowPagerAdapter mSlideshowPagerAdapter;
     private SlideshowViewPager mViewPager;
@@ -81,23 +82,23 @@ public class SlideshowActivity extends Activity
         public void run() {
             if (slideshowOn == false)
                 return;
-            LogHelper.i(TAG, "shuffleOn", shuffleOn);
+            LogHelper.i(TAG, "in nextPageRunnnable, page=",page,"getCurrentItem()=",mViewPager.getCurrentItem());
             if (shuffleOn && filelist.size() > 1) {
                 int newpage = page;
                 Random r = new Random();
                 while (newpage == page) {
                     newpage = r.nextInt(filelist.size());
                 }
-                LogHelper.d(TAG, "page = "+page+"chosen random page "+newpage);
+                LogHelper.i(TAG, "page=",page,"...chosen random page ",newpage);
                 page = newpage;
             } else {
-                Log.d(TAG, "page = "+page+" choosing next page");
+                LogHelper.i(TAG, "page=",page,"...choosing next page");
                 page++;
                 if (page >= numPages)
                     page = 0;
             }
 
-            Utils.setLastDisplayed(getApplicationContext(),Integer.toString(page));
+            // Utils.setLastDisplayed(getApplicationContext(),Integer.toString(page));
             mViewPager.setCurrentItem(page,true);
 
             // to keep the slideshow going, start the timer again
@@ -117,17 +118,13 @@ public class SlideshowActivity extends Activity
         }
     };
 
-    // callback from the slideshow speed dialog after OK clicked
-    public void slideshowSpeedChanged(int newSpeed)
-    {
-        Utils.setSlideshowDelay(this,newSpeed);
-    }
-
     // button clicked - restart the slideshow
     public void btnPhotoStartSlideshowClicked(View v) {
         btnStartSlideshow.setVisibility(View.INVISIBLE);
         btnPhotoDelete.setVisibility(View.INVISIBLE);
         btnPhotoShare.setVisibility(View.INVISIBLE);
+        btnSlideshowDecreaseSpeed.setVisibility(View.INVISIBLE);
+        btnSlideshowIncreaseSpeed.setVisibility(View.INVISIBLE);
         page = mViewPager.getCurrentItem();
         startSlideshow();
     }
@@ -160,7 +157,7 @@ public class SlideshowActivity extends Activity
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);        // Save the slideshow status
-        LogHelper.v(TAG,"onSaveInstanceState");
+        LogHelper.i(TAG,"onSaveInstanceState");
         LogHelper.i(TAG, "Saving values :slideshowOn=", slideshowOn,"; shuffleOn=",shuffleOn,"; currentPage=",mViewPager.getCurrentItem());
         savedInstanceState.putBoolean("slideshowOn", slideshowOn);
         savedInstanceState.putBoolean("shuffleOn", shuffleOn);
@@ -182,7 +179,7 @@ public class SlideshowActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LogHelper.v(TAG,"onCreate");
+        LogHelper.i(TAG,"onCreate");
 
         // Check we have necessary permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -200,8 +197,9 @@ public class SlideshowActivity extends Activity
         setContentView(R.layout.activity_slideshow);
         btnStartSlideshow = (ImageButton) findViewById(R.id.imgbtnPhotoStartSlideshow);
         btnPhotoDelete = (ImageButton) findViewById(R.id.imgbtnPhotoDelete);
-        btnPhotoShare = (Button) findViewById(R.id.imgbtnPhotoShare);
-        btnSlideshowSpeed = (Button) findViewById(R.id.btnSlideShowSpeed);
+        btnPhotoShare = (ImageButton) findViewById(R.id.imgbtnPhotoShare);
+        btnSlideshowIncreaseSpeed = (Button) findViewById(R.id.btnSlideShowIncreaseSpeed);
+        btnSlideshowDecreaseSpeed = (Button) findViewById(R.id.btnSlideShowDecreaseSpeed);
 
         mSlideshowPagerAdapter = new SlideshowPagerAdapter(this);
         mViewPager = (SlideshowViewPager) findViewById(R.id.slideshowpager);
@@ -211,7 +209,7 @@ public class SlideshowActivity extends Activity
 
         // if we are starting for first time (not restarting)
         if (savedInstanceState == null) {
-            Log.v("TAG","Saved instance state == null");
+            LogHelper.i(TAG,"Saved instance state == null");
             slideshowSharedState = true;
             slideshowOn = true;
             //shuffleSharedState = true;
@@ -293,21 +291,11 @@ public class SlideshowActivity extends Activity
         // get the saved (in memory state of the slideshow)
         slideshowOn = slideshowSharedState;
         shuffleOn = shuffleSharedState;
+        LogHelper.i(TAG, "slideshowOn=", slideshowOn, ";shuffleOn=", shuffleOn, ";page=",page);
         mViewPager.setCurrentItem(page);
 
         if (slideshowOn) {
             startSlideshow();
-            /*
-            btnStartSlideshow.setVisibility(View.INVISIBLE);
-            btnPhotoDelete.setVisibility(View.INVISIBLE);
-            btnPhotoShare.setVisibility(View.INVISIBLE);
-            */
-        } else {
-            /*
-            btnStartSlideshow.setVisibility(View.VISIBLE);
-            btnPhotoDelete.setVisibility(View.VISIBLE);
-            btnPhotoShare.setVisibility(View.VISIBLE);
-            */
         }
         hideControlsAndNavigation();
         // You should never show the action bar (application bar) if the
@@ -325,6 +313,14 @@ public class SlideshowActivity extends Activity
         btnStartSlideshow.setVisibility(View.VISIBLE);
         btnPhotoDelete.setVisibility(View.VISIBLE);
         btnPhotoShare.setVisibility(View.VISIBLE);
+        int ssd = Utils.getSlideshowDelay(this);
+        // N.b. decrease speed (slower) means increase delay, and vice versa
+        if (ssd < MAX_SLIDESHOW_DELAY_SECS) {
+            btnSlideshowDecreaseSpeed.setVisibility(View.VISIBLE);
+        }
+        if (ssd > MIN_SLIDESHOW_DELAY_SECS) {
+            btnSlideshowIncreaseSpeed.setVisibility(View.VISIBLE);
+        }
 
         View decorView = getWindow().getDecorView();
         int uiOptions =
@@ -355,6 +351,8 @@ public class SlideshowActivity extends Activity
         btnStartSlideshow.setVisibility(View.INVISIBLE);
         btnPhotoDelete.setVisibility(View.INVISIBLE);
         btnPhotoShare.setVisibility(View.INVISIBLE);
+        btnSlideshowIncreaseSpeed.setVisibility(View.INVISIBLE);
+        btnSlideshowDecreaseSpeed.setVisibility(View.INVISIBLE);
 
 
         // Code to make layout fullscreen. In onResume, otherwise when activity comes back it will revert to non-fullscreen
@@ -429,15 +427,28 @@ public class SlideshowActivity extends Activity
         return filelist;
     }
 
-    // button slide show spped clicked
-    public void btnSlideShowSpeedClicked(View v) {
-    // show dialog
-    FragmentManager fm = getFragmentManager();
-    SlideshowSpeedDialog slideshowspeeddialog = new SlideshowSpeedDialog();
-    Bundle args = new Bundle();
-    args.putInt("currentValue", Utils.getSlideshowDelay(this));
-    slideshowspeeddialog.setArguments(args);
-    slideshowspeeddialog.show(fm, "fragment_slideshowspeed_dialog");
+    /**
+     * Increase the speed of the slideshow
+     * This means we DEcrease the delay by a second (if greater than minimum delay)
+     * @param v
+     */
+    public void btnSlideShowIncreaseSpeedClicked(View v) {
+        int ssd = Utils.getSlideshowDelay(getApplicationContext());
+        if (ssd > MIN_SLIDESHOW_DELAY_SECS) {
+            Utils.setSlideshowDelay(getApplicationContext(), ssd - 1);
+        }
+    }
+
+    /**
+     * Decrease the speed of the slideshow
+     * This means we INcrease the delay by a second (if less than maximum delay)
+     * @param v
+     */
+    public void btnSlideShowDecreaseSpeedClicked(View v) {
+        int ssd = Utils.getSlideshowDelay(getApplicationContext());
+        if (ssd < MAX_SLIDESHOW_DELAY_SECS) {
+            Utils.setSlideshowDelay(getApplicationContext(), ssd + 1);
+        }
     }
 
     // button delete clicked.
@@ -484,4 +495,5 @@ public class SlideshowActivity extends Activity
 
         startActivity(Intent.createChooser(emailIntent, "Send mail:"));
     }
+
 }

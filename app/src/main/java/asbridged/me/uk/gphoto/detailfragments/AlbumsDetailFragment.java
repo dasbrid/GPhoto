@@ -97,6 +97,7 @@ public class AlbumsDetailFragment extends OptionDynamicDetailFragment {
             intent.putExtra("albumName", albumNames);
             intent.putExtra("position", -1);
             intent.putStringArrayListExtra("bucketIDs", selectedBucketIDs);
+            intent.putExtra("playInRandomOrder", shuffled);
             this.startActivity(intent);
         }
     }

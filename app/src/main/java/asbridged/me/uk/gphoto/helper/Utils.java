@@ -29,7 +29,7 @@ public class Utils {
         String ssd = sharedPref.getString("lastDisplayed", "nothing");
         return ssd;
     }
-
+/*
     public static void setLastDisplayed(Context context,String ssd)
     {
         SharedPreferences sharedPref = context.getSharedPreferences(PREFS_LOCATION,Context.MODE_PRIVATE);
@@ -54,7 +54,7 @@ public class Utils {
         String ssd = sharedPref.getString("imageFilename", "none");
         return ssd;
     }
-
+*/
     public static int getSlideshowDelay(Context context)
     {
         SharedPreferences sharedPref = context.getSharedPreferences(PREFS_LOCATION,Context.MODE_PRIVATE);

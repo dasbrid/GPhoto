@@ -80,6 +80,7 @@ public class YearDetailFragment extends OptionDynamicDetailFragment {
         intent.putExtra("position", -1);
         intent.putExtra("month", -1);
         intent.putExtra("year", year);
+        intent.putExtra("playInRandomOrder", shuffled);
         this.startActivity(intent);
     }
 }
