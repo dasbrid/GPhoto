@@ -23,6 +23,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
+            android:spinnersShown="true"
+        android:calendarViewShown="false"
+            android:datePickerMode="spinner"
             android:layout_below="@id/textView"
     />
 </RelativeLayout>

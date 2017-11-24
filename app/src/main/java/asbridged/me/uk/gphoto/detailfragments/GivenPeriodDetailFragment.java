@@ -28,20 +28,15 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
     Calendar c;
     String albumName;
 
-    RadioGroup rg1;
-    RadioGroup rg2;
+    RadioGroup radioGroup;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_detail_given_period, container, false);
         //radioGroup =(RadioGroup)v.findViewById(R.title.radioGroup);
-        rg1 = (RadioGroup) v.findViewById(R.id.radioGroup1);
-        rg2 = (RadioGroup) v.findViewById(R.id.radioGroup2);
-        rg1.clearCheck(); // this is so we can start fresh, with no selection on both RadioGroups
-        rg2.clearCheck();
+        radioGroup = (RadioGroup) v.findViewById(R.id.radioGroup);
         RadioButton rbDefault = (RadioButton) v.findViewById(R.id.rbAllPhotos);
         rbDefault.setChecked(true);
-//        rg1.setOnCheckedChangeListener(listener1);
-//        rg2.setOnCheckedChangeListener(listener2);
         Button button = (Button) v.findViewById(R.id.btnShowSlideshow);
         button.setOnClickListener(this);
         button = (Button) v.findViewById(R.id.btnShowPictures);
@@ -54,9 +49,8 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
 
     @Override
     public void doSlideshow(boolean shuffled) {
-        int selectedId=rg1.getCheckedRadioButtonId();
-        if (selectedId == -1)
-            selectedId = rg2.getCheckedRadioButtonId();
+        int selectedId= radioGroup.getCheckedRadioButtonId();
+
         Log.d(TAG,"selectedId="+selectedId);
         Intent intent = new Intent(getActivity(), SlideshowActivity.class);
         intent.putExtra("folderAbsolutePath", "not needed");
@@ -140,9 +134,7 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
     }
 
     public void viewAlbum() {
-        int selectedId=rg1.getCheckedRadioButtonId();
-        if (selectedId == -1)
-            selectedId = rg2.getCheckedRadioButtonId();
+        int selectedId= radioGroup.getCheckedRadioButtonId();
         Log.d(TAG,"selectedId="+selectedId);
         Intent intent;
 

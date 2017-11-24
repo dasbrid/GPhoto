@@ -13,56 +13,60 @@
             android:layout_height="match_parent"
             android:onClick="btnPhotoClicked"
     />
-<LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
-android:layout_centerInParent="true"
->
-    <ImageButton android:id="@+id/imgbtnPhotoStartSlideshow"
-        android:padding="@dimen/photo_button_padding"
-        android:onClick="btnPhotoStartSlideshowClicked"
-        android:src="@drawable/icon_play_slideshow"
-        android:alpha=".5"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:scaleType="fitCenter"
-     />
 
-    <ImageButton android:id="@+id/imgbtnPhotoDelete"
-        android:padding="@dimen/photo_button_padding"
-        android:onClick="btnPhotoStartSlideshowClicked"
-        android:src="@drawable/icon_delete"
-        android:alpha=".5"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:scaleType="fitCenter"
-     />
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        >
 
-    <ImageButton android:id="@+id/imgbtnPhotoShare"
+
+        <ImageButton android:id="@+id/imgbtnPhotoStartSlideshow"
+            android:padding="@dimen/photo_button_padding"
+            android:onClick="btnPhotoStartSlideshowClicked"
+            android:src="@drawable/icon_play_slideshow"
+            android:alpha=".5"
+            android:layout_width="@dimen/controlbuttonsize"
+            android:layout_height="@dimen/controlbuttonsize"
+            android:scaleType="fitCenter"
+            />
+
+        <ImageButton android:id="@+id/imgbtnPhotoDelete"
+            android:padding="@dimen/photo_button_padding"
+            android:onClick="btnPhotoStartSlideshowClicked"
+            android:src="@drawable/icon_delete"
+            android:alpha="@dimen/controlbuttons_alpha"
+            android:layout_width="@dimen/controlbuttonsize"
+            android:layout_height="@dimen/controlbuttonsize"
+            android:scaleType="fitCenter"
+            />
+
+        <ImageButton android:id="@+id/imgbtnPhotoShare"
             android:padding="@dimen/photo_button_padding"
             android:onClick="btnPhotoShareClicked"
             android:src="@drawable/icon_share"
-            android:alpha=".5"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:alpha="@dimen/controlbuttons_alpha"
+            android:layout_width="@dimen/controlbuttonsize"
+            android:layout_height="@dimen/controlbuttonsize"
             android:scaleType="fitCenter"
-    />
+            />
 
-    <Button android:id="@+id/btnSlideShowDecreaseSpeed"
-        android:text="-"
-        android:alpha=".5"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:scaleType="fitCenter"
-        android:onClick="btnSlideShowDecreaseSpeedClicked"
-    />
+        <Button android:id="@+id/btnSlideShowDecreaseSpeed"
+            android:text="-"
+            android:alpha="@dimen/controlbuttons_alpha"
+            android:layout_width="@dimen/controlbuttonsize"
+            android:layout_height="@dimen/controlbuttonsize"
+            android:scaleType="fitCenter"
+            android:onClick="btnSlideShowDecreaseSpeedClicked"
+            />
 
-    <Button android:id="@+id/btnSlideShowIncreaseSpeed"
-        android:alpha=".5"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:scaleType="fitCenter"
-        android:text="+"
-        android:onClick="btnSlideShowIncreaseSpeedClicked"
-    />
+        <Button android:id="@+id/btnSlideShowIncreaseSpeed"
+            android:alpha="@dimen/controlbuttons_alpha"
+            android:layout_width="@dimen/controlbuttonsize"
+            android:layout_height="@dimen/controlbuttonsize"
+            android:scaleType="fitCenter"
+            android:text="+"
+            android:onClick="btnSlideShowIncreaseSpeedClicked"
+            />
 
-</LinearLayout>
+    </LinearLayout>
+
 </RelativeLayout>
