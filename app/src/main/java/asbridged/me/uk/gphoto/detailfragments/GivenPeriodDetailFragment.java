@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
@@ -37,11 +38,12 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
         radioGroup = (RadioGroup) v.findViewById(R.id.radioGroup);
         RadioButton rbDefault = (RadioButton) v.findViewById(R.id.rbAllPhotos);
         rbDefault.setChecked(true);
-        Button button = (Button) v.findViewById(R.id.btnShowSlideshow);
+
+        ImageButton button = v.findViewById(R.id.btnShowSlideshow);
         button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPictures);
+        button = v.findViewById(R.id.btnShowPictures);
         button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPicturesShuffled);
+        button =  v.findViewById(R.id.btnShowPicturesShuffled);
         button.setOnClickListener(this);
 
         return v;

@@ -45,28 +45,12 @@ public class MultiCheckablePhotoGridActivity extends Activity
     private ArrayList<String> bucketIDstrings;
     private int numPhotos;
 
+    private Bundle parameters;
+
     private boolean modified;
 
-    private final String TAG = "DAVE:ChkblePhGrAct";
-    // Called after starting or when resuming (no saved instance state)
-    @Override
-    protected void onResume() {
-        super.onResume();  // Always call the superclass method first
+    private static final String TAG = LogHelper.makeLogTag(MultiCheckablePhotoGridActivity.class);
 
-        if (modified) {
-            Log.d(TAG,"modified");
-            this.imageFiles.clear();
-            ArrayList<File> files;
-
-            // TOTD: Check OnResume !!! WHAT ABOUT ALL THE OTHER ALBUM TYPES !!!
-            // CHECK THIS !!! WHAT ABOUT ALL THE OTHER ALBUM TYPES !!!!!!!!!!!!!!!!!
-            // get all files (in this folder and in subfolders)
-            files = Utils.getMediaInBucket(this, this.albumName);
-            imageFiles.addAll(files);
-            adapter.notifyDataSetChanged();
-        }
-
-    }
 
     @Override
     public void onStart() {
@@ -82,6 +66,22 @@ public class MultiCheckablePhotoGridActivity extends Activity
                 modified = resultData.getBooleanExtra("modified", false);
             }
         }
+    }
+
+    // Called after starting or when resuming (no saved instance state)
+    @Override
+    protected void onResume() {
+        super.onResume();  // Always call the superclass method first
+        LogHelper.i(TAG, "OnResume");
+        // N.b. It isn't really necessary to always reload the list onResume()
+        // because the list already exists. We could just do this in onCreate()
+        // But in that case we would have to take account of the modified flag here
+        // - This indicates that a file has been deleted in the slideshow activity
+        ArrayList<File> files;
+        files = Utils.getFilelist (this, parameters);
+        imageFiles.clear();
+        imageFiles.addAll(files);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -107,7 +107,14 @@ public class MultiCheckablePhotoGridActivity extends Activity
         setContentView(R.layout.activity_multi_checkable_photo_grid);
         gridView = (GridView) findViewById(R.id.photo_grid_view);
 
-        Bundle parameters = getIntent().getExtras();
+        parameters = getIntent().getExtras();
+/*
+This is done in onResume
+        ArrayList<File> files;
+        files = Utils.getFilelist (this, parameters);
+        LogHelper.i(TAG, "get ", files.size(), " files");
+*/
+/*
         String albumFolder = parameters.getString("folderAbsolutePath");
         this.albumType = parameters.getString("albumType");
         this.albumName = parameters.getString("albumName");
@@ -132,7 +139,7 @@ public class MultiCheckablePhotoGridActivity extends Activity
 
 //// GIVES NULL REFERENCE        getActionBar().setTitle(albumName);
 
-        ArrayList<File> files;
+
 
         Log.d("DAVE", "displaying album for " + albumMonth +"/" + albumYear);
 
@@ -161,8 +168,8 @@ public class MultiCheckablePhotoGridActivity extends Activity
             // Year and month specified ... get for this month
             files = Utils.getMediaInMonth(this, albumMonth, albumYear);
         }
-
-        imageFiles = files;
+*/
+        imageFiles = new ArrayList<>(); // files;
         // Gridview adapter
         adapter = new MultiCheckablePhotoGridAdapter(MultiCheckablePhotoGridActivity.this, imageFiles);
         // setting grid view adapter
@@ -178,6 +185,16 @@ public class MultiCheckablePhotoGridActivity extends Activity
                             long id) {
         File f = imageFiles.get(position);
         Intent intent = new Intent(this, SlideshowActivity.class);
+
+        intent.putExtra("folderAbsolutePath", parameters.getString("folderAbsolutePath"));
+        intent.putExtra("albumName",parameters.getString("albumName"));
+        intent.putExtra("albumType",parameters.getString("albumType"));
+        intent.putExtra("albumBucketID", parameters.getLong("albumBucketID"));
+        intent.putStringArrayListExtra("bucketIDs", parameters.getStringArrayList("bucketIDs"));
+        intent.putExtra("position", position);
+        intent.putExtra("month", parameters.getInt("month"));
+        intent.putExtra("year", parameters.getInt("year"));
+/*
         intent.putExtra("folderAbsolutePath", this.albumAbsolutePath);
         intent.putExtra("albumName",this.albumName);
         intent.putExtra("albumType",this.albumType);
@@ -186,6 +203,7 @@ public class MultiCheckablePhotoGridActivity extends Activity
         intent.putExtra("position", position);
         intent.putExtra("month", albumMonth);
         intent.putExtra("year", albumYear);
+*/
         this.startActivityForResult(intent,100);
     }
 

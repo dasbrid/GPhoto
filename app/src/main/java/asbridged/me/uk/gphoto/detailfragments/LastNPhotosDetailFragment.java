@@ -6,13 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.ImageButton;
+import android.widget.NumberPicker;
 
 import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.activities.MultiCheckablePhotoGridActivity;
 import asbridged.me.uk.gphoto.activities.SlideshowActivity;
-import asbridged.me.uk.gphoto.controls.NumberControl;
 import asbridged.me.uk.gphoto.helper.LogHelper;
 
 /**
@@ -23,27 +22,30 @@ public class LastNPhotosDetailFragment extends OptionDynamicDetailFragment {
 
     private static final String TAG = LogHelper.makeLogTag(LastNPhotosDetailFragment.class);
 
-    private NumberControl ncLastNControl;
+    private NumberPicker npLastNControl;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LogHelper.v(TAG, "onCreateView");
         View v = inflater.inflate(R.layout.fragment_detail_last_n_photos, container, false);
 
-        ncLastNControl = (NumberControl) v.findViewById(R.id.ncLastNControl);
-        ncLastNControl.setMinNumber(10);
-        ncLastNControl.setMaxNumber(100);
+        npLastNControl = (NumberPicker) v.findViewById(R.id.npLastNControl);
+        npLastNControl.setMinValue(10);
+        npLastNControl.setMaxValue(100);
+        LogHelper.i(TAG, "savedInstanceState=",savedInstanceState==null?"null":"not null");
+        int startingValue;
         if (savedInstanceState == null) {
-            ncLastNControl.setNumber(25);
+            startingValue = 25;
         } else {
-            ncLastNControl.setNumber(savedInstanceState.getInt("currentValue"));
+            startingValue = savedInstanceState.getInt("currentValue");
         }
+        npLastNControl.setValue(startingValue);
 
-        Button button = (Button) v.findViewById(R.id.btnShowSlideshow);
+        ImageButton button = v.findViewById(R.id.btnShowSlideshow);
         button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPictures);
+        button = v.findViewById(R.id.btnShowPictures);
         button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPicturesShuffled);
+        button =  v.findViewById(R.id.btnShowPicturesShuffled);
         button.setOnClickListener(this);
 
         return v;
@@ -51,7 +53,7 @@ public class LastNPhotosDetailFragment extends OptionDynamicDetailFragment {
 
     @Override
     public void viewAlbum() {
-        int numPhotos = ncLastNControl.getNumber();
+        int numPhotos = npLastNControl.getValue();
 
         // start the slideshow activity
         Intent intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
@@ -67,7 +69,7 @@ public class LastNPhotosDetailFragment extends OptionDynamicDetailFragment {
 
     @Override
     public void doSlideshow(boolean shuffled) {
-        int numPhotos = ncLastNControl.getNumber();
+        int numPhotos = npLastNControl.getValue();
 
         // start the slideshow activity
         Intent intent = new Intent(getActivity(), SlideshowActivity.class);

@@ -5,7 +5,10 @@
                 android:gravity="center_vertical">
     <include
         android:id="@+id/buttons"
-        layout="@layout/buttons"/>
+        layout="@layout/buttons"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        />
     <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
@@ -17,12 +20,12 @@
             android:layout_marginBottom="@dimen/tabs_text_margin_bottom"
     />
 
+    <NumberPicker
+        android:id="@+id/npLastNControl"
+        android:layout_below="@id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        />
 
-    <asbridged.me.uk.gphoto.controls.NumberControl
-            android:id="@+id/ncLastNControl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_below="@+id/textView"
-    />
 </RelativeLayout>

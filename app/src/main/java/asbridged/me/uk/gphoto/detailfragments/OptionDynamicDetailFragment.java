@@ -74,21 +74,8 @@ public abstract class OptionDynamicDetailFragment extends Fragment implements an
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.description);
+                appBarLayout.setTitle(mItem.title  );
             }
         }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.dynamic_option_detail, container, false);
-
-        // Show the dummy description as text in a TextView.
-        if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.option_detail)).setText(mItem.title);
-        }
-
-        return rootView;
     }
 }

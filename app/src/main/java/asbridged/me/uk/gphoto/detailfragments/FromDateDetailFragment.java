@@ -7,13 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
 
 import java.util.Calendar;
 
 import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.activities.MultiCheckablePhotoGridActivity;
 import asbridged.me.uk.gphoto.activities.SlideshowActivity;
-import asbridged.me.uk.gphoto.controls.NumberControl;
 import asbridged.me.uk.gphoto.helper.LogHelper;
 
 /**
@@ -36,11 +36,11 @@ public class FromDateDetailFragment extends OptionDynamicDetailFragment {
         c.add(Calendar.MONTH, -2);
         dpFromDate.init(c.get(Calendar.YEAR),c.get(Calendar.MONTH),c.get(Calendar.DAY_OF_MONTH), null);
 
-        Button button = (Button) v.findViewById(R.id.btnShowSlideshow);
+        ImageButton button = v.findViewById(R.id.btnShowSlideshow);
         button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPictures);
+        button = v.findViewById(R.id.btnShowPictures);
         button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPicturesShuffled);
+        button =  v.findViewById(R.id.btnShowPicturesShuffled);
         button.setOnClickListener(this);
 
         return v;

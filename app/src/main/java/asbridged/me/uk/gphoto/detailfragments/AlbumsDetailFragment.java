@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -54,18 +55,18 @@ public class AlbumsDetailFragment extends OptionDynamicDetailFragment {
                 // No explanation needed, we can request the permission.
                 startActivity(new Intent(getActivity(), GetPermissionsActivity.class));
             } else {
-                albumList = Utils.getAlbumsFromMedia(getContext());
-                albumAdapter = new AlbumListAdapter(getContext(), albumList);
-                lvAlbumList.setAdapter(albumAdapter);
+
             }
         }
+        albumList = Utils.getAlbumsFromMedia(getContext());
+        albumAdapter = new AlbumListAdapter(getContext(), albumList);
+        lvAlbumList.setAdapter(albumAdapter);
 
-        LogHelper.i(TAG, "setting up and returning view");
-        Button button = (Button) v.findViewById(R.id.btnShowSlideshow);
+        ImageButton button = v.findViewById(R.id.btnShowSlideshow);
         button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPictures);
+        button = v.findViewById(R.id.btnShowPictures);
         button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPicturesShuffled);
+        button =  v.findViewById(R.id.btnShowPicturesShuffled);
         button.setOnClickListener(this);
 
         return v;

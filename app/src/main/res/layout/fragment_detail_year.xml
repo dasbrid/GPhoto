@@ -22,11 +22,12 @@
             android:layout_marginBottom="@dimen/tabs_text_margin_bottom"
     />
 
-    <asbridged.me.uk.gphoto.controls.NumberControl
-            android:id="@+id/yearControl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_below="@+id/textView"
+    <NumberPicker
+        android:id="@+id/numberpickercontrol"
+        android:layout_below="@id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:descendantFocusability="blocksDescendants"
     />
 </RelativeLayout>

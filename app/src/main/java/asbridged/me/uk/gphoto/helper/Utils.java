@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.graphics.*;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import asbridged.me.uk.gphoto.classes.Album;
@@ -55,19 +56,33 @@ public class Utils {
         return ssd;
     }
 */
-    public static int getSlideshowDelay(Context context)
+    private static final int MIN_SLIDESHOW_DELAY_SECS = 1;
+    private static final int MAX_SLIDESHOW_DELAY_SECS = 10;
+
+    public static int getSlideshowDelayInSeconds(Context context)
     {
         SharedPreferences sharedPref = context.getSharedPreferences(PREFS_LOCATION,Context.MODE_PRIVATE);
+        int ssd;
+        int ssdPercent = sharedPref.getInt("slideshowDelayPercent", 50);
 
-        int ssd = sharedPref.getInt("slideshowDelay", 3);
+        ssd = MIN_SLIDESHOW_DELAY_SECS + (MAX_SLIDESHOW_DELAY_SECS-MIN_SLIDESHOW_DELAY_SECS)*(100-ssdPercent)/100;
+
         return ssd;
     }
 
-    public static void setSlideshowDelay(Context context, int ssd)
+    public static int getSlideshowDelayInPercent(Context context)
+    {
+        SharedPreferences sharedPref = context.getSharedPreferences(PREFS_LOCATION,Context.MODE_PRIVATE);
+        int ssdPercent = sharedPref.getInt("slideshowDelayPercent", 50);
+
+        return ssdPercent;
+    }
+
+    public static void setSlideshowDelayPercent(Context context, int ssdPercent)
     {
         SharedPreferences sharedPref = context.getSharedPreferences(PREFS_LOCATION,Context.MODE_PRIVATE);
         SharedPreferences.Editor settingsEditor = sharedPref.edit();
-        settingsEditor.putInt("slideshowDelay", ssd);
+        settingsEditor.putInt("slideshowDelayPercent", ssdPercent);
         settingsEditor.commit();
     }
 
@@ -172,6 +187,19 @@ public class Utils {
         canvas.drawText("Bad Image", (width / 2.f) , (height / 2.f), paint);
 
         return b;
+    }
+
+    public static void filterBadFiles(ArrayList<File> fileList) {
+
+        ListIterator listIterator = fileList.listIterator();
+        File file;
+        while (listIterator.hasNext()) {
+            file = (File) listIterator.next();
+            if (!file.exists()) {
+                LogHelper.i(TAG, "filtering bad file:", file.getAbsoluteFile());
+                listIterator.remove();
+            }
+        }
     }
 
     public static Bitmap decodeFileToSize(File f, int reqWidth, int reqHeight) {
@@ -374,7 +402,7 @@ public class Utils {
 
     // Get list of media BUCKETS on the device
     public static ArrayList<Album> getAlbumsFromMedia(Context context) {
-
+        LogHelper.i(TAG, "getAlbumsFromMedia");
         ArrayList<Album> albums = new ArrayList<>();
 
         String[] PROJECTION_BUCKET = {
@@ -724,6 +752,62 @@ public class Utils {
             cur.close();
         }
         return files;
+    }
+
+    /**
+     * Get the list of files to show, based on the parameter bundle
+     * @param parameters
+     * @return list of files
+     */
+    public static ArrayList<File> getFilelist(Context context, Bundle parameters) {
+
+        ArrayList<File> filelist;
+        String albumFolder = parameters.getString("folderAbsolutePath");
+
+        String albumType = parameters.getString("albumType");
+        int albumMonth = parameters.getInt("month");
+        int albumYear = parameters.getInt("year");
+        int albumDay = -1;
+        if (albumType.equals("fromDate"))
+            albumDay = parameters.getInt("day");
+        long albumBucketID = -1;
+        int numPhotos = 0;
+        ArrayList<String> bucketIDstrings = new ArrayList<String>();
+        if (albumType.equals("bucket")) {
+            albumBucketID = parameters.getLong("albumBucketID");
+        } else if (albumType.equals("multipleBuckets")) {
+            bucketIDstrings = parameters.getStringArrayList("bucketIDs");
+        } else if (albumType.equals("lastNPhotos")) {
+            numPhotos = parameters.getInt("numPhotos");
+        }
+
+        if (albumType.equals("lastYear")) {
+            filelist = Utils.getPhotosLastYear(context);
+        } else if (albumType.equals("lastNPhotos")) {
+            filelist = Utils.getLastNPhotosinMedia(context, numPhotos);
+        } else if (albumType.equals("multipleBuckets")) {
+            filelist = Utils.getMediaInListofBuckets(context, bucketIDstrings);
+        } else if (albumType.equals("bucket")) {
+            filelist = Utils.getMediaInBucketID(context, albumBucketID);
+        } else if (albumType.equals("thisYear")) {
+            filelist = Utils.getMediaInCurrentYear(context);
+        } else if (albumType.equals("fromDate")) {
+            filelist = Utils.getMediaFromDate(context,albumDay, albumMonth, albumYear);
+        } else if (albumType.equals("allPhotos")) {
+            filelist = Utils.getAllMedia(context);
+        }
+        else if (albumMonth == -1 && albumYear != -1) {
+            // Year but no month ... Get all for this year
+            filelist = Utils.getMediaInYear(context, albumYear);
+        } else if (albumMonth == -2 && albumYear == -2) {
+            // Get RECENT files
+            filelist = Utils.getRecentMedia(context);
+        } else {
+            filelist = Utils.getMediaInMonth(context, albumMonth, albumYear);
+        }
+
+        filterBadFiles(filelist);
+        return filelist;
     }
 
 /*

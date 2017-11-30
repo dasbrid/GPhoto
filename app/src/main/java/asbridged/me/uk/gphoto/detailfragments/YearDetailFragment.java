@@ -6,14 +6,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.NumberPicker;
 
 import java.util.Calendar;
 
 import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.activities.MultiCheckablePhotoGridActivity;
 import asbridged.me.uk.gphoto.activities.SlideshowActivity;
-import asbridged.me.uk.gphoto.controls.NumberControl;
 import asbridged.me.uk.gphoto.helper.LogHelper;
+
+import static android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS;
 
 /**
  * Created by AsbridgeD on 15-Nov-17.
@@ -23,38 +26,45 @@ public class YearDetailFragment extends OptionDynamicDetailFragment {
 
     private static final String TAG = LogHelper.makeLogTag(YearDetailFragment.class);
 
-    private NumberControl ycYear;
+    private NumberPicker np;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LogHelper.v(TAG, "onCreateView");
         View v = inflater.inflate(R.layout.fragment_detail_year, container, false);
 
-        ycYear= (NumberControl) v.findViewById(R.id.yearControl);
-        ycYear.setMinNumber(2011);
-        ycYear.setMaxNumber(2018);
+        ImageButton button = v.findViewById(R.id.btnShowSlideshow);
+        button.setOnClickListener(this);
+        button = v.findViewById(R.id.btnShowPictures);
+        button.setOnClickListener(this);
+        button =  v.findViewById(R.id.btnShowPicturesShuffled);
+        button.setOnClickListener(this);
 
+        int startingValue;
         if (savedInstanceState == null) {
             Calendar c = Calendar.getInstance();
-            ycYear.setNumber(c.get(Calendar.YEAR));
+            startingValue = c.get(Calendar.YEAR);
         } else {
-            ycYear.setNumber(savedInstanceState.getInt("currentValue"));
+            startingValue = savedInstanceState.getInt("currentValue");
         }
 
-        Button button = (Button) v.findViewById(R.id.btnShowSlideshow);
-        button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPictures);
-        button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPicturesShuffled);
-        button.setOnClickListener(this);
+        np = (NumberPicker) v.findViewById(R.id.numberpickercontrol);
+
+        //Populate NumberPicker values from minimum and maximum value range
+        //Set the minimum value of NumberPicker
+        np.setMinValue(2011);
+        //Specify the maximum value/number of NumberPicker
+        np.setMaxValue(2030);
+        np.setValue(startingValue);
+        //Gets whether the selector wheel wraps when reaching the min/max value.
+        np.setWrapSelectorWheel(false);
 
         return v;
     }
 
     public void viewAlbum() {
         // get the Year
-        int year = ycYear.getNumber();
-
+        int year = np.getValue();
         Intent intent;
 
         intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
@@ -71,9 +81,8 @@ public class YearDetailFragment extends OptionDynamicDetailFragment {
     @Override
     public void doSlideshow(boolean shuffled) {
         // get the Year
-        int year = ycYear.getNumber();
+        int year = np.getValue();
 
-        // start the slideshow activity
         Intent intent = new Intent(getActivity(), SlideshowActivity.class);
         intent.putExtra("folderAbsolutePath", "not needed");
         intent.putExtra("albumType", "givenYear");

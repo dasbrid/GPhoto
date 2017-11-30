@@ -8,6 +8,8 @@
     <include
         android:id="@+id/buttons"
         layout="@layout/buttons"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         />
 
     <TextView

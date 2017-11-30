@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">GPhoto</string>
-    <string name="title_option_list">Options</string>
+    <string name="title_option_list">Choose photos</string>
     <string name="title_option_detail">Option Detail</string>
 </resources>

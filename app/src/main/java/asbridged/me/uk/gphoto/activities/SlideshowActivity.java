@@ -36,9 +36,6 @@ public class SlideshowActivity extends Activity
 
     private static final String TAG = LogHelper.makeLogTag(SlideshowActivity.class);
 
-    private final int MIN_SLIDESHOW_DELAY_SECS = 1;
-    private final int MAX_SLIDESHOW_DELAY_SECS = 10;
-
     private int numPages;
     private ArrayList<File> filelist;
     // Flag used when automatically going to the next image
@@ -46,6 +43,9 @@ public class SlideshowActivity extends Activity
     // this is saved in onSaveInstanceState and read in OnResume
     private boolean slideshowOn;
 
+    // this flag is just for the UI. It is true when we are using the seekbar
+    // if the 'hide navigation' happens while this is true then we will NOT hide anything
+    private boolean currentlyUsingSeekbar = false;
 
     // Flag used when automatically going to the next image
     // Choose next image randomly or sequentially
@@ -69,8 +69,8 @@ public class SlideshowActivity extends Activity
     private ImageButton btnPhotoShare;
     private ImageButton btnPhotoDelete;
     private ImageButton btnStartSlideshow;
-    private Button btnSlideshowIncreaseSpeed;
-    private Button btnSlideshowDecreaseSpeed;
+    private LinearLayout seekbarcontrols;
+    private SeekBar seekbar;
 
     private SlideshowPagerAdapter mSlideshowPagerAdapter;
     private SlideshowViewPager mViewPager;
@@ -102,7 +102,7 @@ public class SlideshowActivity extends Activity
             mViewPager.setCurrentItem(page,true);
 
             // to keep the slideshow going, start the timer again
-            int ssd = Utils.getSlideshowDelay(getApplicationContext());
+            int ssd = Utils.getSlideshowDelayInSeconds(getApplicationContext());
             handler.postDelayed(this, ssd * 1000);
         }
     };
@@ -123,8 +123,7 @@ public class SlideshowActivity extends Activity
         btnStartSlideshow.setVisibility(View.INVISIBLE);
         btnPhotoDelete.setVisibility(View.INVISIBLE);
         btnPhotoShare.setVisibility(View.INVISIBLE);
-        btnSlideshowDecreaseSpeed.setVisibility(View.INVISIBLE);
-        btnSlideshowIncreaseSpeed.setVisibility(View.INVISIBLE);
+        seekbarcontrols.setVisibility(View.INVISIBLE);
         page = mViewPager.getCurrentItem();
         startSlideshow();
     }
@@ -142,7 +141,7 @@ public class SlideshowActivity extends Activity
 
     private void startSlideshow() {
         slideshowOn = true;
-        handler.postDelayed(nextpageRunnable, Utils.getSlideshowDelay(this));
+        handler.postDelayed(nextpageRunnable, Utils.getSlideshowDelayInSeconds(this)*1000);
     }
 
     /**
@@ -195,11 +194,34 @@ public class SlideshowActivity extends Activity
         }
 
         setContentView(R.layout.activity_slideshow);
-        btnStartSlideshow = (ImageButton) findViewById(R.id.imgbtnPhotoStartSlideshow);
-        btnPhotoDelete = (ImageButton) findViewById(R.id.imgbtnPhotoDelete);
-        btnPhotoShare = (ImageButton) findViewById(R.id.imgbtnPhotoShare);
-        btnSlideshowIncreaseSpeed = (Button) findViewById(R.id.btnSlideShowIncreaseSpeed);
-        btnSlideshowDecreaseSpeed = (Button) findViewById(R.id.btnSlideShowDecreaseSpeed);
+        btnStartSlideshow = findViewById(R.id.imgbtnPhotoStartSlideshow);
+        btnPhotoDelete = findViewById(R.id.imgbtnPhotoDelete);
+        btnPhotoShare = findViewById(R.id.imgbtnPhotoShare);
+        seekbarcontrols = findViewById(R.id.seekbarcontrols);
+        seekbar = findViewById(R.id.seekbarSpeed);
+
+        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progressChangedValue = 0;
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                progressChangedValue = progress;
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // Set this flag to prevent controls being cleared when hide navigation fires
+                currentlyUsingSeekbar = true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                LogHelper.i(TAG, "speed:", progressChangedValue);
+                // Clear the using seekbar flag and hide the controls
+                Utils.setSlideshowDelayPercent(getApplicationContext(), progressChangedValue);
+                currentlyUsingSeekbar = false;
+                hideControlsAndNavigation();
+            }
+        });
+
 
         mSlideshowPagerAdapter = new SlideshowPagerAdapter(this);
         mViewPager = (SlideshowViewPager) findViewById(R.id.slideshowpager);
@@ -235,9 +257,9 @@ public class SlideshowActivity extends Activity
         }
 
         LogHelper.i(TAG, "Values from activity PARAMETERS: shuffled=",playInRandomOrder,"; position=",positionParameter);
+        filelist = Utils.getFilelist (this, parameters);
 
-        filelist = getFilelist (parameters);
-
+        LogHelper.i(TAG, filelist.size() , " pictures in slideshow");
         if (filelist == null)
         {
             filelist = new ArrayList<File>();
@@ -313,14 +335,9 @@ public class SlideshowActivity extends Activity
         btnStartSlideshow.setVisibility(View.VISIBLE);
         btnPhotoDelete.setVisibility(View.VISIBLE);
         btnPhotoShare.setVisibility(View.VISIBLE);
-        int ssd = Utils.getSlideshowDelay(this);
-        // N.b. decrease speed (slower) means increase delay, and vice versa
-        if (ssd < MAX_SLIDESHOW_DELAY_SECS) {
-            btnSlideshowDecreaseSpeed.setVisibility(View.VISIBLE);
-        }
-        if (ssd > MIN_SLIDESHOW_DELAY_SECS) {
-            btnSlideshowIncreaseSpeed.setVisibility(View.VISIBLE);
-        }
+
+        seekbar.setProgress(Utils.getSlideshowDelayInPercent(this));
+        seekbarcontrols.setVisibility(View.VISIBLE);
 
         View decorView = getWindow().getDecorView();
         int uiOptions =
@@ -348,12 +365,16 @@ public class SlideshowActivity extends Activity
      * This is called by the runnable after the contrills have been shown for n seconds
      */
     private void hideControlsAndNavigation() {
+
+        if (currentlyUsingSeekbar == true) {
+            return;
+        }
+
         btnStartSlideshow.setVisibility(View.INVISIBLE);
         btnPhotoDelete.setVisibility(View.INVISIBLE);
         btnPhotoShare.setVisibility(View.INVISIBLE);
-        btnSlideshowIncreaseSpeed.setVisibility(View.INVISIBLE);
-        btnSlideshowDecreaseSpeed.setVisibility(View.INVISIBLE);
-
+        seekbarcontrols.setVisibility(View.INVISIBLE);
+        currentlyUsingSeekbar = false;
 
         // Code to make layout fullscreen. In onResume, otherwise when activity comes back it will revert to non-fullscreen
         // http://developer.android.com/training/system-ui/status.html
@@ -378,7 +399,7 @@ public class SlideshowActivity extends Activity
      * @param parameters
      * @return list of files
      */
-    private ArrayList<File>  getFilelist(Bundle parameters) {
+    private ArrayList<File> getFilelist(Bundle parameters) {
 
         ArrayList<File> filelist;
         String albumFolder = parameters.getString("folderAbsolutePath");
@@ -427,29 +448,7 @@ public class SlideshowActivity extends Activity
         return filelist;
     }
 
-    /**
-     * Increase the speed of the slideshow
-     * This means we DEcrease the delay by a second (if greater than minimum delay)
-     * @param v
-     */
-    public void btnSlideShowIncreaseSpeedClicked(View v) {
-        int ssd = Utils.getSlideshowDelay(getApplicationContext());
-        if (ssd > MIN_SLIDESHOW_DELAY_SECS) {
-            Utils.setSlideshowDelay(getApplicationContext(), ssd - 1);
-        }
-    }
-
-    /**
-     * Decrease the speed of the slideshow
-     * This means we INcrease the delay by a second (if less than maximum delay)
-     * @param v
-     */
-    public void btnSlideShowDecreaseSpeedClicked(View v) {
-        int ssd = Utils.getSlideshowDelay(getApplicationContext());
-        if (ssd < MAX_SLIDESHOW_DELAY_SECS) {
-            Utils.setSlideshowDelay(getApplicationContext(), ssd + 1);
-        }
-    }
+    File fileToDelete;
 
     // button delete clicked.
     public void btnPhotoDeleteClicked(View v)
@@ -457,9 +456,14 @@ public class SlideshowActivity extends Activity
         // show confirm dialog
         FragmentManager fm = getFragmentManager();
         DeleteConfirmDialog deleteDialog = new DeleteConfirmDialog();
+
+        int currentPageNo = mViewPager.getCurrentItem();
+        fileToDelete = this.filelist.get(currentPageNo);
+
         Bundle args = new Bundle();
         args.putString("title", "Delete Picture");
         args.putString("message", "Are you sure you want to delete this picture?");
+        LogHelper.i(TAG, "deleting picture number ", Integer.toString(currentPageNo) ,"(" , fileToDelete.getName() , ")");
         deleteDialog.setArguments(args);
         deleteDialog.show(fm, "fragment_delete_dialog");
     }
@@ -468,17 +472,25 @@ public class SlideshowActivity extends Activity
     // Delete dialog button clicked (callback)
     public void onDeleteDialogOK(ActionMode am) {
         int currentPage = mViewPager.getCurrentItem();
-        File currentFile = this.filelist.get(currentPage);
-        String filepath = currentFile.getAbsolutePath();
-        String msg = "path="+filepath +(currentFile.exists()?" exists":" NOT exists");
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-        this.filelist.remove(currentFile);
+
+        LogHelper.i(TAG, "onDeleteDialogOK, index=", currentPage, " file=", fileToDelete.getAbsoluteFile(), fileToDelete.exists()?" exists":" NOT exists");
+
+        int numpictures = filelist.size();
+        filelist.remove(fileToDelete);
+        LogHelper.i(TAG, "there were ", numpictures, "files, now "+ filelist.size(), " files");
+
+        mSlideshowPagerAdapter.setFileList(filelist);
         mViewPager.invalidate();
         mSlideshowPagerAdapter.notifyDataSetChanged();
+        mViewPager.setCurrentItem(1,true);
         modified = true;
         // Only actually delete if deletion enabled
-        if (AppConstant.ALLOW_DELETE)
-            currentFile.delete();
+        if (AppConstant.ALLOW_DELETE) {
+            LogHelper.i(TAG,  "Deleting");
+            fileToDelete.delete();
+        } else {
+            LogHelper.i(TAG,  "Not configured to delete");
+        }
     }
 
     // button share clicked. Share selected image

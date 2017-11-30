@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,24 +60,15 @@ public class SlideshowPagerAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         LogHelper.i (TAG,"instantiate ",position ," of " ,fileList.size() , "=" , fileList.get(position).getAbsolutePath());
 
-        //Utils.setImageFilename(mContext, "instantiate " + position +" of " + fileList.size() + "=" + fileList.get(position).getAbsolutePath());
         View itemView = mLayoutInflater.inflate(R.layout.slideshow_page, container, false);
 
         ImageView iv = (ImageView) itemView.findViewById(R.id.slideshowImage);
         // get the imageview size and scale the image to fit
-        Bitmap myBitmap = Utils.decodeFileToSize(new File(fileList.get(position).getAbsolutePath()), AppConstant.SLIDESHOW_WIDTH,AppConstant.SLIDESHOW_HEIGHT);
+        Bitmap myBitmap = Utils.decodeFileToSize(new File(fileList.get(position).getAbsolutePath()), AppConstant.SLIDESHOW_IMAGE_WIDTH,AppConstant.SLIDESHOW_IMAGE_HEIGHT);
 
-//        Bitmap myBitmap = Utils.decodeFileByScale(new File(fileList.get(position).getAbsolutePath()), 16);
-
-
-        //Utils.setImageFilename(mContext,Utils.getImageFilename(mContext) + " decoded bitmap");
         iv.setImageBitmap(myBitmap);
- /*
-        ImageView imageView = (ImageView) itemView.findViewById(R.title.slideshowImage);
-        imageView.setImageResource(mResources[position]);
-*/
+
         container.addView(itemView);
-        //Utils.setImageFilename(mContext,Utils.getImageFilename(mContext) + " added view");
         return itemView;
     }
 

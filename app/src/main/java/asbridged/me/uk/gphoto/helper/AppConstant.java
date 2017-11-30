@@ -24,10 +24,10 @@ public class AppConstant {
     // NOT the size on the screen (specified in gui constants)
     public static int THUMB_SIZE= 240;
 
-    public static int SLIDESHOW_WIDTH= 1280;
-    public static int SLIDESHOW_HEIGHT= 800;
+    public static int SLIDESHOW_IMAGE_WIDTH = 1280;
+    public static int SLIDESHOW_IMAGE_HEIGHT = 800;
 
-    public static final boolean ALLOW_DELETE = false;
+    public static final boolean ALLOW_DELETE = true;
     public static final boolean ALLOW_VIEW_PHOTOS = true;
 
 }

@@ -6,14 +6,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.NumberPicker;
 
 import java.util.Calendar;
 
 import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.activities.MultiCheckablePhotoGridActivity;
 import asbridged.me.uk.gphoto.activities.SlideshowActivity;
-import asbridged.me.uk.gphoto.controls.MonthControl;
-import asbridged.me.uk.gphoto.controls.NumberControl;
 import asbridged.me.uk.gphoto.helper.LogHelper;
 
 /**
@@ -24,52 +24,71 @@ public class MonthDetailFragment extends OptionDynamicDetailFragment {
 
     private static final String TAG = LogHelper.makeLogTag(MonthDetailFragment.class);
 
-    private static final String[] MONTHS = new String[] { "January", "February",
-            "March", "April", "May", "June", "July", "August", "September",
-            "October", "November", "December" };
+    private static final String[] MONTHS = new String[] { "Jan", "Feb",
+            "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+            "Oct", "Nov", "Dec" };
 
-    private NumberControl ycYear;
-    private MonthControl mcMonth;
+    private NumberPicker npMonth;
+    private NumberPicker npYear;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         LogHelper.v(TAG, "onCreateView");
         View v = inflater.inflate(R.layout.fragment_detail_month, container, false);
 
-        ycYear= (NumberControl) v.findViewById(R.id.yearControlMonth);
-        mcMonth = (MonthControl) v.findViewById(R.id.monthControlMonth);
-        ycYear.setMinNumber(2011);
-        ycYear.setMaxNumber(2019);
+        int startingYear;
+        int startingMonth;
 
         if (savedInstanceState == null) {
             Calendar c = Calendar.getInstance();
-            ycYear.setNumber(c.get(Calendar.YEAR));
-            mcMonth.setMonth(c.get(Calendar.MONTH));
+            startingYear = c.get(Calendar.YEAR);
+            startingMonth = c.get(Calendar.MONTH);
 
         } else {
-            ycYear.setNumber(savedInstanceState.getInt("currentYear"));
-            mcMonth.setMonth(savedInstanceState.getInt("currentMonth"));
+            startingYear = savedInstanceState.getInt("currentYear");
+            startingMonth =  savedInstanceState.getInt("currentMonth");
         }
 
-        Button button = (Button) v.findViewById(R.id.btnShowSlideshow);
+        ImageButton button = v.findViewById(R.id.btnShowSlideshow);
         button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPictures);
+        button = v.findViewById(R.id.btnShowPictures);
         button.setOnClickListener(this);
-        button = (Button) v.findViewById(R.id.btnShowPicturesShuffled);
+        button =  v.findViewById(R.id.btnShowPicturesShuffled);
         button.setOnClickListener(this);
+
+        npYear = (NumberPicker) v.findViewById(R.id.numberControlYear);
+        //Populate NumberPicker values from minimum and maximum value range
+        //Set the minimum value of NumberPicker
+        npYear.setMinValue(2011);
+        //Specify the maximum value/number of NumberPicker
+        npYear.setMaxValue(2030);
+        npYear.setValue(startingYear);
+        //Gets whether the selector wheel wraps when reaching the min/max value.
+        npYear.setWrapSelectorWheel(false);
+
+        npMonth = (NumberPicker) v.findViewById(R.id.numberControlMonth);
+        //Populate NumberPicker values from minimum and maximum value range
+        //Set the minimum value of NumberPicker
+        npMonth.setMinValue(0);
+        //Specify the maximum value/number of NumberPicker
+        npMonth.setMaxValue(11);
+        npMonth.setDisplayedValues(MONTHS);//new String[] { "Jan", "Feb", "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec" });
+        npMonth.setValue(startingMonth);
+        //Gets whether the selector wheel wraps when reaching the min/max value.
+        npMonth.setWrapSelectorWheel(false);
 
         return v;
     }
 
     public void viewAlbum() {
         // get the MONTH
-        int month = mcMonth.getMonth();
+        int month = npMonth.getValue();
         // get the Year
-        int year = ycYear.getNumber();
+        int year = npYear.getValue();
 
         Intent intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
         intent.putExtra("folderAbsolutePath", "not needed");
-        intent.putExtra("albumName", "Photos taken in "+mcMonth.getMonthText() + " in " + year);
+        intent.putExtra("albumName", "Photos taken in "+ MONTHS[npMonth.getValue()] + " in " + year);
         intent.putExtra("albumType", "givenMonth");
         intent.putExtra("position", -1);
         intent.putExtra("month", month);
@@ -80,9 +99,9 @@ public class MonthDetailFragment extends OptionDynamicDetailFragment {
     @Override
     public void doSlideshow(boolean shuffled) {
         // get the MONTH
-        int month = mcMonth.getMonth();
+        int month = npMonth.getValue();
         // get the Year
-        int year = ycYear.getNumber();
+        int year = npYear.getValue();
 
         // start the slideshow activity
         Intent intent = new Intent(getActivity(), SlideshowActivity.class);

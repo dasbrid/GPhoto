@@ -8,6 +8,8 @@
     <include
         android:id="@+id/buttons"
         layout="@layout/buttons"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         />
 
     <TextView
@@ -20,20 +22,26 @@
             android:layout_below="@id/buttons"
             android:gravity="center_horizontal"
     />
-
-    <asbridged.me.uk.gphoto.controls.MonthControl
-            android:id="@+id/monthControlMonth"
-            android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textView"
+        android:layout_centerHorizontal="true"
+        >
+        <NumberPicker
+            android:id="@+id/numberControlMonth"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_below="@+id/textView"/>
-    <asbridged.me.uk.gphoto.controls.NumberControl
-            android:id="@+id/yearControlMonth"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_below="@id/monthControlMonth"
-            android:layout_marginTop="20dp"
-    />
+            android:layout_toEndOf="@id/numberControlYear"
+            android:layout_marginEnd="12dp"
+            android:descendantFocusability="blocksDescendants"
+            />
+    <NumberPicker
+        android:id="@+id/numberControlYear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants"
+        />
 
+    </LinearLayout>
 </RelativeLayout>

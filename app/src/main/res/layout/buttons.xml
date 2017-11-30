@@ -1,35 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="wrap_content">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Slideshow"
-        android:drawableLeft="@drawable/icon_play_slideshow"
-        android:id="@+id/btnShowSlideshow"
-        android:padding="@dimen/photosbydate_button_padding"
-        android:textSize="@dimen/photosbydate_button_text_size"
-        />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="View photos"
-        android:drawableLeft="@drawable/icon_view_photos"
-        android:id="@+id/btnShowPictures"
-        android:layout_toEndOf="@id/btnShowSlideshow"
-        android:padding="@dimen/photosbydate_button_padding"
-        android:textSize="@dimen/photosbydate_button_text_size"
-        />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Shuffled"
-        android:drawableLeft="@drawable/icon_view_photos"
+    <ImageButton
+        android:layout_width="@dimen/controlbuttonsize"
+        android:layout_height="@dimen/controlbuttonsize"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_play_shuffled"
         android:id="@+id/btnShowPicturesShuffled"
-        android:layout_toEndOf="@id/btnShowPictures"
-        android:padding="@dimen/photosbydate_button_padding"
-        android:textSize="@dimen/photosbydate_button_text_size"
         />
 
-</RelativeLayout>
+    <ImageButton
+        android:layout_width="@dimen/controlbuttonsize"
+        android:layout_height="@dimen/controlbuttonsize"
+        android:scaleType="fitCenter"
+        android:text="Shuffled"
+        android:src="@drawable/ic_play"
+        android:id="@+id/btnShowSlideshow"
+        />
+    <ImageButton
+        android:layout_width="@dimen/controlbuttonsize"
+        android:layout_height="@dimen/controlbuttonsize"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_view"
+        android:id="@+id/btnShowPictures"
+
+        />
+
+
+</LinearLayout>

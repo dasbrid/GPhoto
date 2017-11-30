@@ -16,13 +16,15 @@
 
     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:id="@+id/controlbuttons"
+        android:orientation="horizontal"
         >
 
 
         <ImageButton android:id="@+id/imgbtnPhotoStartSlideshow"
             android:padding="@dimen/photo_button_padding"
             android:onClick="btnPhotoStartSlideshowClicked"
-            android:src="@drawable/icon_play_slideshow"
+            android:src="@drawable/ic_play"
             android:alpha=".5"
             android:layout_width="@dimen/controlbuttonsize"
             android:layout_height="@dimen/controlbuttonsize"
@@ -31,8 +33,8 @@
 
         <ImageButton android:id="@+id/imgbtnPhotoDelete"
             android:padding="@dimen/photo_button_padding"
-            android:onClick="btnPhotoStartSlideshowClicked"
-            android:src="@drawable/icon_delete"
+            android:onClick="btnPhotoDeleteClicked"
+            android:src="@drawable/ic_delete"
             android:alpha="@dimen/controlbuttons_alpha"
             android:layout_width="@dimen/controlbuttonsize"
             android:layout_height="@dimen/controlbuttonsize"
@@ -42,31 +44,68 @@
         <ImageButton android:id="@+id/imgbtnPhotoShare"
             android:padding="@dimen/photo_button_padding"
             android:onClick="btnPhotoShareClicked"
-            android:src="@drawable/icon_share"
+            android:src="@drawable/ic_share"
             android:alpha="@dimen/controlbuttons_alpha"
             android:layout_width="@dimen/controlbuttonsize"
             android:layout_height="@dimen/controlbuttonsize"
             android:scaleType="fitCenter"
             />
-
-        <Button android:id="@+id/btnSlideShowDecreaseSpeed"
-            android:text="-"
-            android:alpha="@dimen/controlbuttons_alpha"
-            android:layout_width="@dimen/controlbuttonsize"
-            android:layout_height="@dimen/controlbuttonsize"
-            android:scaleType="fitCenter"
-            android:onClick="btnSlideShowDecreaseSpeedClicked"
-            />
-
-        <Button android:id="@+id/btnSlideShowIncreaseSpeed"
-            android:alpha="@dimen/controlbuttons_alpha"
-            android:layout_width="@dimen/controlbuttonsize"
-            android:layout_height="@dimen/controlbuttonsize"
-            android:scaleType="fitCenter"
-            android:text="+"
-            android:onClick="btnSlideShowIncreaseSpeedClicked"
-            />
-
     </LinearLayout>
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="6"
+        android:layout_below="@id/controlbuttons"
+        android:gravity="center_horizontal"
+        >
+
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/seekbarcontrols"
+        android:layout_below="@id/controlbuttons"
+        android:weightSum="6"
+        android:layout_weight="3"
+
+        >
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Slow"
+        android:gravity="start"
+        android:textSize="24dp"
+        android:layout_weight="1"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:background="@android:color/black"
+        />
+
+    <SeekBar
+        android:id="@+id/seekbarSpeed"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_weight="4"
+        android:minHeight="6dp"
+        android:maxHeight="18dp"
+        android:progressDrawable="@android:drawable/progress_horizontal"
+        android:indeterminateDrawable="@android:drawable/progress_horizontal"
+        android:indeterminateOnly="false"
+        android:thumb="@drawable/seekbarthumb"
+        />
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textSize="24dp"
+            android:text="Fast"
+            android:layout_weight="1"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:background="@android:color/black"
+        />
+    </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>

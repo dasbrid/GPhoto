@@ -17,7 +17,7 @@
         <activity android:name=".activities.GetPermissionsActivity"></activity>
         <activity
             android:name=".activities.OptionDynamicListActivity"
-            android:label="@string/title_option_list"
+            android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,7 +26,6 @@
         </activity>
         <activity
             android:name=".activities.OptionDynamicDetailActivity"
-            android:label="@string/title_option_detail"
             android:parentActivityName=".activities.OptionDynamicListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
