@@ -18,6 +18,7 @@ import asbridged.me.uk.gphoto.R;
 
 import asbridged.me.uk.gphoto.classes.OptionContent;
 import asbridged.me.uk.gphoto.detailfragments.AlbumsDetailFragment;
+import asbridged.me.uk.gphoto.detailfragments.BetweenDatesDetailFragment;
 import asbridged.me.uk.gphoto.detailfragments.FromDateDetailFragment;
 import asbridged.me.uk.gphoto.detailfragments.GivenPeriodDetailFragment;
 import asbridged.me.uk.gphoto.detailfragments.LastNPhotosDetailFragment;
@@ -123,6 +124,9 @@ public class OptionDynamicListActivity extends AppCompatActivity {
                     break;
                 case "From date":
                     fragment = new FromDateDetailFragment();
+                    break;
+                case "Between dates":
+                    fragment = new BetweenDatesDetailFragment();
                     break;
                 default:
                     fragment = null;

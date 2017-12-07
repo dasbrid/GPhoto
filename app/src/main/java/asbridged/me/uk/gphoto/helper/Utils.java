@@ -647,6 +647,32 @@ public class Utils {
         return getMediaInDateRange(context, minDate, -1);
     }
 
+    /**
+     * Get all media between specified dates
+     * @param context
+     * @param day
+     * @param month
+     * @param year
+     * @param today
+     * @param tomonth
+     * @param toyear
+     * @return
+     */
+    public static ArrayList<File> getMediaBetweenDates(Context context, int day, int month, int year, int today, int tomonth, int toyear) {
+        long minDate;
+        long maxDate;
+
+        Calendar c = Calendar.getInstance();
+        c.clear();
+        c.set(year, month, day);
+        minDate = c.getTimeInMillis();
+        c.clear();
+        c.set(toyear, tomonth, today);
+        c.add(Calendar.HOUR, 24);
+        maxDate = c.getTimeInMillis();
+        return getMediaInDateRange(context, minDate, maxDate);
+    }
+
     // Get Media between two dates (using Query) from description provider
     // Used by other methods
     // If maxdate is -1 then no max date is used (up to present date)
@@ -768,8 +794,19 @@ public class Utils {
         int albumMonth = parameters.getInt("month");
         int albumYear = parameters.getInt("year");
         int albumDay = -1;
-        if (albumType.equals("fromDate"))
+        if (albumType.equals("fromDate") || albumType.equals("betweenDates")) {
             albumDay = parameters.getInt("day");
+        }
+
+        int albumMonthTo = -1;
+        int albumDayTo = -1;
+        int albumYearTo = -1;
+        if (albumType.equals("betweenDates")) {
+            albumMonthTo = parameters.getInt("tomonth");
+            albumYearTo = parameters.getInt("toyear");
+            albumDayTo = parameters.getInt("today");
+        }
+
         long albumBucketID = -1;
         int numPhotos = 0;
         ArrayList<String> bucketIDstrings = new ArrayList<String>();
@@ -793,6 +830,8 @@ public class Utils {
             filelist = Utils.getMediaInCurrentYear(context);
         } else if (albumType.equals("fromDate")) {
             filelist = Utils.getMediaFromDate(context,albumDay, albumMonth, albumYear);
+        } else if (albumType.equals("betweenDates")) {
+            filelist = Utils.getMediaBetweenDates(context,albumDay, albumMonth, albumYear, albumDayTo, albumMonthTo, albumYearTo );
         } else if (albumType.equals("allPhotos")) {
             filelist = Utils.getAllMedia(context);
         }

@@ -140,6 +140,7 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
         Log.d(TAG,"selectedId="+selectedId);
         Intent intent;
 
+//////////////////////////////        intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
         intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
 
         intent.putExtra("folderAbsolutePath", "not needed");

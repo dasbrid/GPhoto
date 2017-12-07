@@ -17,12 +17,13 @@
     <dimen name="photo_button_padding">5dp</dimen>
 
     <dimen name="tabs_text_size">24sp</dimen>
+    <dimen name="tabs_text_size_small">18sp</dimen>
     <dimen name="radioOptionsTextSize">18sp</dimen>
     <dimen name="tabs_text_margin_bottom">10dp</dimen>
 
     <dimen name="photosbydate_button_text_size">16sp</dimen>
     <dimen name="photosbydate_button_padding">5dp</dimen>
 
-    <integer name="albumgrid_number_columns">2</integer>
+
     <item name="controlbuttons_alpha" type="dimen" format="float">0.8</item>
 </resources>

@@ -5,7 +5,7 @@
     <dimen name="item_width">200dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 
-
-
+    <integer name="albumgrid_number_columns">2</integer>
+    <dimen name="controlbuttonsize">76dp</dimen>
 
 </resources>

@@ -22,5 +22,5 @@
         android:layout_marginStart="6dp"
         android:text="description"
         android:textAppearance="?attr/textAppearanceListItemSmall"
-        android:textColor="@color/LightBlue" />
+        android:textColor="#100010" />
 </LinearLayout>

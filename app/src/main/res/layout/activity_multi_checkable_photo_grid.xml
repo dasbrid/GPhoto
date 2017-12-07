@@ -15,6 +15,7 @@
               android:layout_weight="1"
               android:numColumns="@integer/albumgrid_number_columns"
               android:stretchMode="columnWidth"
+        android:drawSelectorOnTop="true"
     >
     </GridView>
 </LinearLayout>

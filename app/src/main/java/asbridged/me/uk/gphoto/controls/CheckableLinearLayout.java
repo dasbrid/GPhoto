@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.LinearLayout;
+
+import asbridged.me.uk.gphoto.helper.LogHelper;
 /**
  * Created by AsbridgeD on 08/01/2016.
  */
@@ -17,7 +19,7 @@ import android.widget.LinearLayout;
  * {@link android.widget.AbsListView#setChoiceMode(int) choiceMode} set.
  */
 public class CheckableLinearLayout extends LinearLayout implements Checkable {
-
+    private static final String TAG = LogHelper.makeLogTag(CheckableLinearLayout.class);
     /**
      * Interface definition for a callback to be invoked when the checked state of this View is
      * changed.
@@ -53,10 +55,12 @@ public class CheckableLinearLayout extends LinearLayout implements Checkable {
     }
 
     public boolean isChecked() {
+        LogHelper.i(TAG, "isChecked ", mChecked);
         return mChecked;
     }
 
     public void setChecked(boolean b) {
+        LogHelper.i(TAG, "isChecked ", b);
         if (b != mChecked) {
             mChecked = b;
             refreshDrawableState();
@@ -68,6 +72,7 @@ public class CheckableLinearLayout extends LinearLayout implements Checkable {
     }
 
     public void toggle() {
+        LogHelper.i(TAG, "isChecked ", mChecked);
         setChecked(!mChecked);
     }
 

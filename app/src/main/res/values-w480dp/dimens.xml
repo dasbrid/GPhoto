@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="controlbuttonsize">96dp</dimen>
+
+    <integer name="albumgrid_number_columns">5</integer>
+</resources>

@@ -295,23 +295,23 @@ This is done in onResume
 
     // Delete dialog button clicked (callback)
     public void onDeleteDialogOK(ActionMode am) {
-        Toast.makeText(this, "Delete files", Toast.LENGTH_LONG).show();
-
         SparseBooleanArray checkedItems = gridView.getCheckedItemPositions();
+        // SparseBooleanArray keys: [0, 1,5,8] indicates that photos 0, 1 5 and 8 are checked
         int numCheckedItems = checkedItems.size();
 
-        for (int i = 0; i < numCheckedItems ; i++)
-        {
+        // Loop in REVERSE order so that we have correct index on next deletion
+        // (imageFiles is modified in the loop)
+        for (int i = numCheckedItems-1; i >= 0; i--) {
             int key = checkedItems.keyAt(i);
             if (checkedItems.get(key)) {
                 File file = imageFiles.get(key);
-                Toast.makeText(this, "Delete "+file.getAbsolutePath(), Toast.LENGTH_LONG).show();
                 if (AppConstant.ALLOW_DELETE) {
                     file.delete();
                 }
                 imageFiles.remove(key);
             }
         }
+
         adapter.notifyDataSetChanged();
         am.finish();
     }

@@ -29,6 +29,7 @@ public class OptionContent {
         addItem(new OptionItem("Year", "Show photos from a given year"));
         addItem(new OptionItem("Month", "Show photos from a given month"));
         addItem(new OptionItem("From date", "Show photos after given date"));
+        addItem(new OptionItem("Between dates", "Show photos between given dates"));
     }
 
     private static void addItem(OptionItem item) {
