@@ -16,96 +16,95 @@
 
     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:id="@+id/controlbuttons"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         >
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:id="@+id/controlbuttons"
+            android:orientation="horizontal"
+            >
 
 
-        <ImageButton android:id="@+id/imgbtnPhotoStartSlideshow"
-            android:padding="@dimen/photo_button_padding"
-            android:onClick="btnPhotoStartSlideshowClicked"
-            android:src="@drawable/ic_play"
-            android:alpha=".5"
-            android:layout_width="@dimen/controlbuttonsize"
-            android:layout_height="@dimen/controlbuttonsize"
-            android:scaleType="fitCenter"
-            />
+            <ImageButton android:id="@+id/imgbtnPhotoStartSlideshow"
+                android:padding="@dimen/photo_button_padding"
+                android:onClick="btnPhotoStartSlideshowClicked"
+                android:src="@drawable/ic_play"
+                android:alpha=".5"
+                android:layout_width="@dimen/controlbuttonsize"
+                android:layout_height="@dimen/controlbuttonsize"
+                android:scaleType="fitCenter"
+                />
 
-        <ImageButton android:id="@+id/imgbtnPhotoDelete"
-            android:padding="@dimen/photo_button_padding"
-            android:onClick="btnPhotoDeleteClicked"
-            android:src="@drawable/ic_delete"
-            android:alpha="@dimen/controlbuttons_alpha"
-            android:layout_width="@dimen/controlbuttonsize"
-            android:layout_height="@dimen/controlbuttonsize"
-            android:scaleType="fitCenter"
-            />
+            <ImageButton android:id="@+id/imgbtnPhotoDelete"
+                android:padding="@dimen/photo_button_padding"
+                android:onClick="btnPhotoDeleteClicked"
+                android:src="@drawable/ic_delete"
+                android:alpha="@dimen/controlbuttons_alpha"
+                android:layout_width="@dimen/controlbuttonsize"
+                android:layout_height="@dimen/controlbuttonsize"
+                android:scaleType="fitCenter"
+                />
 
-        <ImageButton android:id="@+id/imgbtnPhotoShare"
-            android:padding="@dimen/photo_button_padding"
-            android:onClick="btnPhotoShareClicked"
-            android:src="@drawable/ic_share"
-            android:alpha="@dimen/controlbuttons_alpha"
-            android:layout_width="@dimen/controlbuttonsize"
-            android:layout_height="@dimen/controlbuttonsize"
-            android:scaleType="fitCenter"
-            />
-    </LinearLayout>
+            <ImageButton android:id="@+id/imgbtnPhotoShare"
+                android:padding="@dimen/photo_button_padding"
+                android:onClick="btnPhotoShareClicked"
+                android:src="@drawable/ic_share"
+                android:alpha="@dimen/controlbuttons_alpha"
+                android:layout_width="@dimen/controlbuttonsize"
+                android:layout_height="@dimen/controlbuttonsize"
+                android:scaleType="fitCenter"
+                />
+        </LinearLayout>
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="6"
-        android:layout_below="@id/controlbuttons"
-        android:gravity="center_horizontal"
-        >
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/seekbarcontrols"
+            android:layout_below="@id/controlbuttons"
 
-    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/seekbarcontrols"
-        android:layout_below="@id/controlbuttons"
-        android:weightSum="6"
-        android:layout_weight="3"
 
-        >
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Slow"
-        android:gravity="start"
-        android:textSize="24dp"
-        android:layout_weight="1"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:background="@android:color/black"
-        />
+            >
 
-    <SeekBar
-        android:id="@+id/seekbarSpeed"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_weight="4"
-        android:minHeight="6dp"
-        android:maxHeight="18dp"
-        android:progressDrawable="@android:drawable/progress_horizontal"
-        android:indeterminateDrawable="@android:drawable/progress_horizontal"
-        android:indeterminateOnly="false"
-        android:thumb="@drawable/seekbarthumb"
-        />
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:textSize="24dp"
-            android:text="Fast"
-            android:layout_weight="1"
-            android:textAlignment="center"
-            android:textColor="@android:color/white"
-            android:background="@android:color/black"
-        />
-    </LinearLayout>
+            <SeekBar
+                android:id="@+id/seekbarSpeed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minHeight="6dp"
+                android:maxHeight="18dp"
+                android:layout_marginBottom="8dp"
+                android:progressDrawable="@android:drawable/progress_horizontal"
+                android:indeterminateDrawable="@android:drawable/progress_horizontal"
+                android:indeterminateOnly="false"
+                android:thumb="@drawable/seekbarthumb"
+                />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Slow"
+                    android:layout_alignParentStart="true"
+                    android:textSize="24sp"
+
+                    android:textAlignment="center"
+                    android:textColor="@android:color/white"
+                    android:background="@android:color/black"/>
+
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                        android:textSize="24sp"
+                        android:text="Fast"
+                        android:textAlignment="center"
+                        android:textColor="@android:color/white"
+                        android:background="@android:color/black"/>
+            </RelativeLayout>
+        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>
