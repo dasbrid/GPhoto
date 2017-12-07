@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GPhoto</string>
+
+
+    <string name="time_period">Choose a time period</string>
+    <string name="recent_photos">Show recent photos</string>
+    <string name="albums">Show photos by albums</string>
+    <string name="year">Show photos from a given year</string>
+    <string name="month">Show photos from a given month</string>
+    <string name="from_date">Show photos after given date</string>
+    <string name="between_dates">Show photos between given dates</string>
+
+    <string name="choose_a_time_period">Choose a time period</string>
+    <string name="show_recent_photos">Show recent photos</string>
+    <string name="show_photos_by_albums">Show photos by albums</string>
+    <string name="show_photos_from_a_given_year">Show photos from a given year</string>
+    <string name="show_photos_from_a_given_month">Show photos from a given month</string>
+    <string name="show_photos_after_given_date">Show photos after given date</string>
+    <string name="show_photos_between_given_dates">Show photos between given dates</string>
+
+
+</resources>
