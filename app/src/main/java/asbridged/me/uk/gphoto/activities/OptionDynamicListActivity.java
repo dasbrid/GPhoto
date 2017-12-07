@@ -88,7 +88,7 @@ public class OptionDynamicListActivity extends AppCompatActivity {
                     arguments.putInt(OptionDynamicDetailFragment.ARG_ITEM_ID, item.id);
 
                     OptionDynamicDetailFragment fragment;
-                    fragment = getFragmentToStart(item.id);
+                    fragment = OptionContent.getFragmentToStart(item.id);
 
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()
@@ -104,28 +104,29 @@ public class OptionDynamicListActivity extends AppCompatActivity {
             }
         };
 
+/*
         private OptionDynamicDetailFragment getFragmentToStart(int id) {
             OptionDynamicDetailFragment fragment;
             switch (id) {
-                case 1: //"Time period":
+                case OptionContent.TIME_PERIOD:
                     fragment = new GivenPeriodDetailFragment();
                     break;
-                case 2: //"Recent photos":
+                case OptionContent.RECENT_PHOTOS:
                     fragment = new LastNPhotosDetailFragment();
                     break;
-                case 3: //"Albums":
+                case OptionContent.ALBUMS:
                     fragment = new AlbumsDetailFragment();
                     break;
-                case 4: //"Year":
+                case OptionContent.YEAR:
                     fragment = new YearDetailFragment();
                     break;
-                case 5: //"Month":
+                case OptionContent.MONTH:
                     fragment = new MonthDetailFragment();
                     break;
-                case 6: //"From date":
+                case OptionContent.FROM_DATE:
                     fragment = new FromDateDetailFragment();
                     break;
-                case 7: //"Between dates":
+                case OptionContent.BETWEEN_DATES:
                     fragment = new BetweenDatesDetailFragment();
                     break;
                 default:
@@ -134,7 +135,7 @@ public class OptionDynamicListActivity extends AppCompatActivity {
             return fragment;
         }
 
-
+*/
         SimpleItemRecyclerViewAdapter(OptionDynamicListActivity parent,
                                       List<OptionContent.OptionItem> items,
                                       boolean twoPane) {

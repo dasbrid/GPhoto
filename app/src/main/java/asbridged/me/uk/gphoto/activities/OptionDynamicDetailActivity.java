@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import asbridged.me.uk.gphoto.R;
+import asbridged.me.uk.gphoto.classes.OptionContent;
 import asbridged.me.uk.gphoto.detailfragments.AlbumsDetailFragment;
 import asbridged.me.uk.gphoto.detailfragments.BetweenDatesDetailFragment;
 import asbridged.me.uk.gphoto.detailfragments.FromDateDetailFragment;
@@ -61,7 +62,7 @@ public class OptionDynamicDetailActivity extends AppCompatActivity {
             arguments.putInt(OptionDynamicDetailFragment.ARG_ITEM_ID, item_id);
 
             OptionDynamicDetailFragment fragment;
-            fragment = getFragmentToStart(item_id);
+            fragment = OptionContent.getFragmentToStart(item_id);
             // OptionDynamicDetailFragment fragment = new OptionDynamicDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
@@ -70,35 +71,6 @@ public class OptionDynamicDetailActivity extends AppCompatActivity {
         }
     }
 
-    private OptionDynamicDetailFragment getFragmentToStart(int id) {
-        OptionDynamicDetailFragment fragment;
-        switch (id) {
-            case 1: //"Time period":
-                fragment = new GivenPeriodDetailFragment();
-                break;
-            case 2: //"Recent photos":
-                fragment = new LastNPhotosDetailFragment();
-                break;
-            case 3: //"Albums":
-                fragment = new AlbumsDetailFragment();
-                break;
-            case 4: //"Year":
-                fragment = new YearDetailFragment();
-                break;
-            case 5: //"Month":
-                fragment = new MonthDetailFragment();
-                break;
-            case 6: //"From date":
-                fragment = new FromDateDetailFragment();
-                break;
-            case 7: //"Between dates":
-                fragment = new BetweenDatesDetailFragment();
-                break;
-            default:
-                fragment = null;
-        }
-        return fragment;
-    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
