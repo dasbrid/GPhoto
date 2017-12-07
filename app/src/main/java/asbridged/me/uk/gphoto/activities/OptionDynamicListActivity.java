@@ -82,13 +82,13 @@ public class OptionDynamicListActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 OptionContent.OptionItem item = (OptionContent.OptionItem) view.getTag();
-                LogHelper.i(TAG, "clicked item.title=",item.title);
+                LogHelper.i(TAG, "clicked item", item.id, ", title=",item.title);
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(OptionDynamicDetailFragment.ARG_ITEM_ID, item.title);
+                    arguments.putInt(OptionDynamicDetailFragment.ARG_ITEM_ID, item.id);
 
                     OptionDynamicDetailFragment fragment;
-                    fragment = getFragmentToStart(item.title);
+                    fragment = getFragmentToStart(item.id);
 
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()
@@ -97,35 +97,35 @@ public class OptionDynamicListActivity extends AppCompatActivity {
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, OptionDynamicDetailActivity.class);
-                    intent.putExtra(OptionDynamicDetailFragment.ARG_ITEM_ID, item.title);
+                    intent.putExtra(OptionDynamicDetailFragment.ARG_ITEM_ID, item.id);
 
                     context.startActivity(intent);
                 }
             }
         };
 
-        private OptionDynamicDetailFragment getFragmentToStart(String id) {
+        private OptionDynamicDetailFragment getFragmentToStart(int id) {
             OptionDynamicDetailFragment fragment;
             switch (id) {
-                case "Time period":
+                case 1: //"Time period":
                     fragment = new GivenPeriodDetailFragment();
                     break;
-                case "Recent photos":
+                case 2: //"Recent photos":
                     fragment = new LastNPhotosDetailFragment();
                     break;
-                case "Albums":
+                case 3: //"Albums":
                     fragment = new AlbumsDetailFragment();
                     break;
-                case "Year":
+                case 4: //"Year":
                     fragment = new YearDetailFragment();
                     break;
-                case "Month":
+                case 5: //"Month":
                     fragment = new MonthDetailFragment();
                     break;
-                case "From date":
+                case 6: //"From date":
                     fragment = new FromDateDetailFragment();
                     break;
-                case "Between dates":
+                case 7: //"Between dates":
                     fragment = new BetweenDatesDetailFragment();
                     break;
                 default:

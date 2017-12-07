@@ -21,39 +21,41 @@ public class OptionContent {
     /**
      * A map of sample (dummy) items, by ID.
      */
-    public static final Map<String, OptionItem> ITEM_MAP = new HashMap<String, OptionItem>();
+    public static final Map<Integer, OptionItem> ITEM_MAP = new HashMap<Integer, OptionItem>();
 
     static {
         // Add some sample items.
-        addItem(new OptionItem(ContextApplication.getContext().getString(R.string.time_period), ContextApplication.getContext().getString(R.string.choose_a_time_period)));
-        addItem(new OptionItem(ContextApplication.getContext().getString(R.string.recent_photos), ContextApplication.getContext().getString(R.string.show_recent_photos)));
-        addItem(new OptionItem(ContextApplication.getContext().getString(R.string.albums), ContextApplication.getContext().getString(R.string.show_photos_by_albums)));
-        addItem(new OptionItem(ContextApplication.getContext().getString(R.string.year), ContextApplication.getContext().getString(R.string.show_photos_from_a_given_year)));
-        addItem(new OptionItem(ContextApplication.getContext().getString(R.string.month), ContextApplication.getContext().getString(R.string.show_photos_from_a_given_month)));
-        addItem(new OptionItem(ContextApplication.getContext().getString(R.string.from_date), ContextApplication.getContext().getString(R.string.show_photos_after_given_date)));
-        addItem(new OptionItem(ContextApplication.getContext().getString(R.string.between_dates), ContextApplication.getContext().getString(R.string.show_photos_between_given_dates)));
+        addItem(new OptionItem(1, ContextApplication.getContext().getString(R.string.time_period), ContextApplication.getContext().getString(R.string.choose_a_time_period)));
+        addItem(new OptionItem(2, ContextApplication.getContext().getString(R.string.recent_photos), ContextApplication.getContext().getString(R.string.show_recent_photos)));
+        addItem(new OptionItem(3, ContextApplication.getContext().getString(R.string.albums), ContextApplication.getContext().getString(R.string.show_photos_by_albums)));
+        addItem(new OptionItem(4, ContextApplication.getContext().getString(R.string.year), ContextApplication.getContext().getString(R.string.show_photos_from_a_given_year)));
+        addItem(new OptionItem(5, ContextApplication.getContext().getString(R.string.month), ContextApplication.getContext().getString(R.string.show_photos_from_a_given_month)));
+        addItem(new OptionItem(6, ContextApplication.getContext().getString(R.string.from_date), ContextApplication.getContext().getString(R.string.show_photos_after_given_date)));
+        addItem(new OptionItem(7, ContextApplication.getContext().getString(R.string.between_dates), ContextApplication.getContext().getString(R.string.show_photos_between_given_dates)));
     }
 
     private static void addItem(OptionItem item) {
         ITEMS.add(item);
-        ITEM_MAP.put(item.title, item);
+        ITEM_MAP.put(item.id, item);
     }
 
     /**
      * An option for selecting pictures representing a piece of description.
      */
     public static class OptionItem {
+        public final int id;
         public final String title;
         public final String description;
 
-        public OptionItem(String title, String content) {
+        public OptionItem(int id, String title, String content) {
+            this.id = id;
             this.title = title;
             this.description = content;
         }
 
         @Override
         public String toString() {
-            return description;
+            return Integer.toString(id) + ":" + description;
         }
     }
 }

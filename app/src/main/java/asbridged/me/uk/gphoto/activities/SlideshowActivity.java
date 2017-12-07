@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
+import android.text.Layout;
 import android.view.ActionMode;
 import android.view.View;
 import android.widget.*;
@@ -69,7 +70,7 @@ public class SlideshowActivity extends Activity
     private ImageButton btnPhotoShare;
     private ImageButton btnPhotoDelete;
     private ImageButton btnStartSlideshow;
-    private LinearLayout seekbarcontrols;
+    private RelativeLayout seekbarcontrols;
     private SeekBar seekbar;
 
     private SlideshowPagerAdapter mSlideshowPagerAdapter;

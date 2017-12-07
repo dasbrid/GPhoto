@@ -65,11 +65,11 @@ public abstract class OptionDynamicDetailFragment extends Fragment implements an
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
-            LogHelper.i(TAG, getArguments().getString(ARG_ITEM_ID));
+            LogHelper.i(TAG, getArguments().getInt(ARG_ITEM_ID));
             // Load the dummy description specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load description from a description provider.
-            mItem = OptionContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+            mItem = OptionContent.ITEM_MAP.get(getArguments().getInt(ARG_ITEM_ID));
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
