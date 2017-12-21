@@ -15,7 +15,7 @@ public class AppConstant {
     public static final int GRID_PADDING = 8; // in dp
 
     // SD card image directory
-    public static final String PHOTO_ALBUM = "MatthewsPhotos";
+    public static final String PHOTO_ALBUM = "Photos";
 
     // supported file formats
     public static final List<String> FILE_EXTN = Arrays.asList("jpg", "jpeg", "png");
@@ -29,5 +29,9 @@ public class AppConstant {
 
     public static final boolean ALLOW_DELETE = true;
     public static final boolean ALLOW_VIEW_PHOTOS = true;
+
+    public static final int LAST_N_PHOTOS_MIN = 4;
+    public static final int LAST_N_PHOTOS_MAX = 100;
+
 
 }

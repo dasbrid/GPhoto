@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.NumberPicker;
 
@@ -15,8 +14,7 @@ import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.activities.MultiCheckablePhotoGridActivity;
 import asbridged.me.uk.gphoto.activities.SlideshowActivity;
 import asbridged.me.uk.gphoto.helper.LogHelper;
-
-import static android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS;
+import asbridged.me.uk.gphoto.helper.SlideshowParametersConstants;
 
 /**
  * Created by AsbridgeD on 15-Nov-17.
@@ -63,33 +61,30 @@ public class YearDetailFragment extends OptionDynamicDetailFragment {
     }
 
     public void viewAlbum() {
-        // get the Year
-        int year = np.getValue();
         Intent intent;
 
         intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
 
-        intent.putExtra("folderAbsolutePath", "not needed");
-        intent.putExtra("albumName", "Photos taken in " + year);
-        intent.putExtra("albumType", "givenYear");
-        intent.putExtra("position", -1);
-        intent.putExtra("month", -1);
-        intent.putExtra("year", year);
+        addExtrasToIntent(intent);
         this.startActivity(intent);
+    }
+
+    private void addExtrasToIntent(Intent intent) {
+        // get the Year
+        int year = np.getValue();
+        intent.putExtra(SlideshowParametersConstants.folderAbsolutePath, "not needed");
+        intent.putExtra(SlideshowParametersConstants.albumName, "Photos taken in " + year);
+        intent.putExtra(SlideshowParametersConstants.albumType, SlideshowParametersConstants.AlbumTypes.givenYear);
+ //       intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, -1);
+        intent.putExtra(SlideshowParametersConstants.month, -1);
+        intent.putExtra(SlideshowParametersConstants.year, year);
     }
 
     @Override
     public void doSlideshow(boolean shuffled) {
-        // get the Year
-        int year = np.getValue();
-
         Intent intent = new Intent(getActivity(), SlideshowActivity.class);
-        intent.putExtra("folderAbsolutePath", "not needed");
-        intent.putExtra("albumType", "givenYear");
-        intent.putExtra("position", -1);
-        intent.putExtra("month", -1);
-        intent.putExtra("year", year);
-        intent.putExtra("playInRandomOrder", shuffled);
+        addExtrasToIntent(intent);
+        intent.putExtra(SlideshowParametersConstants.playInRandomOrder, shuffled);
         this.startActivity(intent);
     }
 }

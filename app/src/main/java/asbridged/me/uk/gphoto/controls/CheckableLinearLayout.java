@@ -55,12 +55,10 @@ public class CheckableLinearLayout extends LinearLayout implements Checkable {
     }
 
     public boolean isChecked() {
-        LogHelper.i(TAG, "isChecked ", mChecked);
         return mChecked;
     }
 
     public void setChecked(boolean b) {
-        LogHelper.i(TAG, "isChecked ", b);
         if (b != mChecked) {
             mChecked = b;
             refreshDrawableState();

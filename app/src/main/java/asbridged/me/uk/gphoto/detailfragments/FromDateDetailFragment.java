@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 
@@ -15,6 +14,7 @@ import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.activities.MultiCheckablePhotoGridActivity;
 import asbridged.me.uk.gphoto.activities.SlideshowActivity;
 import asbridged.me.uk.gphoto.helper.LogHelper;
+import asbridged.me.uk.gphoto.helper.SlideshowParametersConstants;
 
 /**
  * Created by AsbridgeD on 15-Nov-17.
@@ -47,41 +47,35 @@ public class FromDateDetailFragment extends OptionDynamicDetailFragment {
     }
 
     public void viewAlbum() {
-        // get the date
-        int day = dpFromDate.getDayOfMonth();
-        int month = dpFromDate.getMonth();
-        int year =  dpFromDate.getYear();
-
         Intent intent;
 
         intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
 
-        intent.putExtra("folderAbsolutePath", "not needed");
-        intent.putExtra("albumName", "Photos taken after " + day + "/" + (month+1) + "/" + year);
-        intent.putExtra("albumType", "fromDate");
-        intent.putExtra("position", -1);
-        intent.putExtra("month", month);
-        intent.putExtra("year", year);
-        intent.putExtra("day", day);
+        addExtrasToIntent(intent);
         this.startActivity(intent);
     }
 
-    @Override
-    public void doSlideshow(boolean shuffled) {
+    private void addExtrasToIntent(Intent intent) {
         // get the date
         int day = dpFromDate.getDayOfMonth();
         int month = dpFromDate.getMonth();
         int year =  dpFromDate.getYear();
 
-        // start the slideshow activity
+        intent.putExtra(SlideshowParametersConstants.folderAbsolutePath, "not needed");
+        intent.putExtra(SlideshowParametersConstants.albumName, "Photos taken after " + day + "/" + (month+1) + "/" + year);
+        intent.putExtra(SlideshowParametersConstants.albumType, SlideshowParametersConstants.AlbumTypes.fromDate);
+//        intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, -1);
+        intent.putExtra(SlideshowParametersConstants.month, month);
+        intent.putExtra(SlideshowParametersConstants.year, year);
+        intent.putExtra(SlideshowParametersConstants.day, day);
+    }
+
+    @Override
+    public void doSlideshow(boolean shuffled) {
         Intent intent = new Intent(getActivity(), SlideshowActivity.class);
-        intent.putExtra("folderAbsolutePath", "not needed");
-        intent.putExtra("albumType", "fromDate");
-        intent.putExtra("position", -1);
-        intent.putExtra("month", month);
-        intent.putExtra("year", year);
-        intent.putExtra("day", day);
-        intent.putExtra("playInRandomOrder", shuffled);
+        addExtrasToIntent(intent);
+
+        intent.putExtra(SlideshowParametersConstants.playInRandomOrder, shuffled);
         this.startActivity(intent);
     }
 }

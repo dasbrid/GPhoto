@@ -19,6 +19,7 @@ import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.adapter.SlideshowPagerAdapter;
 import asbridged.me.uk.gphoto.helper.AppConstant;
 import asbridged.me.uk.gphoto.helper.LogHelper;
+import asbridged.me.uk.gphoto.helper.SlideshowParametersConstants;
 import asbridged.me.uk.gphoto.helper.Utils;
 import java.io.File;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class SlideshowActivity extends Activity
     // this is saved in onSaveInstanceState and read in OnResume
     private boolean shuffleOn;
 
+    private File fileToDelete;
 
     private boolean shuffleSharedState;
     private boolean slideshowSharedState;
@@ -200,6 +202,14 @@ public class SlideshowActivity extends Activity
         seekbarcontrols = findViewById(R.id.seekbarcontrols);
         seekbar = findViewById(R.id.seekbarSpeed);
 
+        if (!Utils.getIsDeleteAllowed(this)) {
+            btnPhotoDelete.setVisibility(View.INVISIBLE);
+        }
+
+        if (!Utils.getIsShareAllowed(this)) {
+            btnPhotoShare.setVisibility(View.INVISIBLE);
+        }
+
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progressChangedValue = 0;
             @Override
@@ -241,14 +251,34 @@ public class SlideshowActivity extends Activity
 
         // playInRandomOrder is set by the fragment (currently only lastNFragment)
         // to signal that we should play in random order, not sequential
-        boolean playInRandomOrder = parameters.getBoolean("playInRandomOrder");
+        boolean playInRandomOrder = parameters.getBoolean(SlideshowParametersConstants.playInRandomOrder);
         shuffleSharedState = playInRandomOrder; //// NOT SURE
 
         // Position is ONLY used when coming from the Album grid activity, so say "Show this specific photo"
-        Integer positionParameter = parameters.getInt("position");
-        if (positionParameter != -1)
+//        Integer positionParameter = parameters.getInt(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH);
+
+        LogHelper.i(TAG, SlideshowParametersConstants.albumType, "=", parameters.getString(SlideshowParametersConstants.albumType));
+        filelist = Utils.getFilelist (this, parameters, "ASC");
+
+        if (parameters.containsKey(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH))
         {
             // we have been passed a specific photo index. Show the photo and turn the slideshow off
+            String positionParameterString = parameters.getString(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH);
+            // positionParametesString parameter string is the AbsoluteFilePath of the file. Find its position
+            // Note that if the photo path is not found in the file list then it would default to the 0 (with no error)
+            int positionParameter = 0;
+            for (File f : filelist) {
+                if (f.getAbsolutePath().equals(positionParameterString)) {
+                    break;
+                }
+                positionParameter++;
+            }
+            LogHelper.i(TAG, "Value from activity PARAMETER: STARTING_PHOTO_ABSOLUTE_PATH=",positionParameterString, ", positionParameter=", positionParameter);
+            if (positionParameter == filelist.size()) {
+                // Something went wrong. The required starting photo cannot be found in the list of files.
+                Toast.makeText(this, "The slected photo could not be found", Toast.LENGTH_LONG).show();
+                positionParameter = 0; // show first photo page by default
+            }
             page = positionParameter;
             slideshowSharedState = false;
         } else {
@@ -256,8 +286,8 @@ public class SlideshowActivity extends Activity
             slideshowSharedState = true;
         }
 
-        LogHelper.i(TAG, "Values from activity PARAMETERS: shuffled=",playInRandomOrder,"; position=",positionParameter);
-        filelist = Utils.getFilelist (this, parameters);
+        LogHelper.i(TAG, "Value from activity PARAMETER: shuffled=",playInRandomOrder);
+
 
         LogHelper.i(TAG, filelist.size() , " pictures in slideshow");
         if (filelist == null)
@@ -291,7 +321,7 @@ public class SlideshowActivity extends Activity
 
     /**
      * The only special thing here is that we pass the information
-     * back to say wheter a photo has been deleted
+     * back to say whether a photo has been deleted
      */
     @Override
     public void onBackPressed() {
@@ -320,10 +350,6 @@ public class SlideshowActivity extends Activity
             startSlideshow();
         }
         hideControlsAndNavigation();
-        // You should never show the action bar (application bar) if the
-        // status bar is hidden, so hide that too if necessary.
-//// GIVES NULL REFERENCE       ActionBar actionBar = getActionBar();
-//// GIVES NULL REFERENCE EXCEPTION       actionBar.hide();
     }
 
     /**
@@ -333,8 +359,12 @@ public class SlideshowActivity extends Activity
     private void showControlsAndNavigationForNSeconds() {
 
         btnStartSlideshow.setVisibility(View.VISIBLE);
-        btnPhotoDelete.setVisibility(View.VISIBLE);
-        btnPhotoShare.setVisibility(View.VISIBLE);
+        if (Utils.getIsDeleteAllowed(this)) {
+            btnPhotoDelete.setVisibility(View.VISIBLE);
+        }
+        if (Utils.getIsShareAllowed(this)) {
+            btnPhotoShare.setVisibility(View.VISIBLE);
+        }
 
         seekbar.setProgress(Utils.getSlideshowDelayInPercent(this));
         seekbarcontrols.setVisibility(View.VISIBLE);
@@ -392,64 +422,6 @@ public class SlideshowActivity extends Activity
         decorView.setSystemUiVisibility(uiOptions);
     }
 
-
-
-    /**
-     * Get the list of files to show, based on the parameter bundle
-     * @param parameters
-     * @return list of files
-     */
-    private ArrayList<File> getFilelist(Bundle parameters) {
-
-        ArrayList<File> filelist;
-        String albumFolder = parameters.getString("folderAbsolutePath");
-
-        String albumType = parameters.getString("albumType");
-        int albumMonth = parameters.getInt("month");
-        int albumYear = parameters.getInt("year");
-        int albumDay = -1;
-        if (albumType.equals("fromDate"))
-            albumDay = parameters.getInt("day");
-        long albumBucketID = -1;
-        int numPhotos = 0;
-        ArrayList<String> bucketIDstrings = new ArrayList<String>();
-        if (albumType.equals("bucket")) {
-            albumBucketID = parameters.getLong("albumBucketID");
-        } else if (albumType.equals("multipleBuckets")) {
-            bucketIDstrings = parameters.getStringArrayList("bucketIDs");
-        } else if (albumType.equals("lastNPhotos")) {
-            numPhotos = parameters.getInt("numPhotos");
-        }
-
-        if (albumType.equals("lastYear")) {
-            filelist = Utils.getPhotosLastYear(this);
-        } else if (albumType.equals("lastNPhotos")) {
-            filelist = Utils.getLastNPhotosinMedia(this, numPhotos);
-        } else if (albumType.equals("multipleBuckets")) {
-            filelist = Utils.getMediaInListofBuckets(this, bucketIDstrings);
-        } else if (albumType.equals("bucket")) {
-            filelist = Utils.getMediaInBucketID(this, albumBucketID);
-        } else if (albumType.equals("thisYear")) {
-            filelist = Utils.getMediaInCurrentYear(this);
-        } else if (albumType.equals("fromDate")) {
-            filelist = Utils.getMediaFromDate(this,albumDay, albumMonth, albumYear);
-        } else if (albumType.equals("allPhotos")) {
-            filelist = Utils.getAllMedia(this);
-        }
-        else if (albumMonth == -1 && albumYear != -1) {
-            // Year but no month ... Get all for this year
-            filelist = Utils.getMediaInYear(this, albumYear);
-        } else if (albumMonth == -2 && albumYear == -2) {
-            // Get RECENT files
-            filelist = Utils.getRecentMedia(this);
-        } else {
-            filelist = Utils.getMediaInMonth(this, albumMonth, albumYear);
-        }
-        return filelist;
-    }
-
-    File fileToDelete;
-
     // button delete clicked.
     public void btnPhotoDeleteClicked(View v)
     {
@@ -482,7 +454,8 @@ public class SlideshowActivity extends Activity
         mSlideshowPagerAdapter.setFileList(filelist);
         mViewPager.invalidate();
         mSlideshowPagerAdapter.notifyDataSetChanged();
-        mViewPager.setCurrentItem(1,true);
+        page = 0;
+        mViewPager.setCurrentItem(page,true);
         modified = true;
         // Only actually delete if deletion enabled
         if (AppConstant.ALLOW_DELETE) {
@@ -501,11 +474,11 @@ public class SlideshowActivity extends Activity
 
         emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(currentFile));
 
-        emailIntent.setType("text/plain");
+        emailIntent.setType("image/*");
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Photo");
         emailIntent.putExtra(Intent.EXTRA_TEXT, "I hope you enjoy this photo");
 
-        startActivity(Intent.createChooser(emailIntent, "Send mail:"));
+        startActivity(Intent.createChooser(emailIntent, "Share photo using"));
     }
 
 }

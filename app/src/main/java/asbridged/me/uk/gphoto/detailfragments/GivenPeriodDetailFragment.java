@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -17,6 +16,7 @@ import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.activities.MultiCheckablePhotoGridActivity;
 import asbridged.me.uk.gphoto.activities.SlideshowActivity;
 import asbridged.me.uk.gphoto.helper.LogHelper;
+import asbridged.me.uk.gphoto.helper.SlideshowParametersConstants;
 
 /**
  * Created by AsbridgeD on 15-Nov-17.
@@ -55,24 +55,24 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
 
         Log.d(TAG,"selectedId="+selectedId);
         Intent intent = new Intent(getActivity(), SlideshowActivity.class);
-        intent.putExtra("folderAbsolutePath", "not needed");
+        intent.putExtra(SlideshowParametersConstants.folderAbsolutePath, "not needed");
 
         if (selectedId == R.id.rbAllPhotos) {
-            intent.putExtra("albumType", "allPhotos");
-            intent.putExtra("albumName", "All photos");
-            intent.putExtra("position", -1);
-            intent.putExtra("month", -1);
-            intent.putExtra("year", -1);
-            intent.putExtra("playInRandomOrder", shuffled);
+            intent.putExtra(SlideshowParametersConstants.albumType, SlideshowParametersConstants.AlbumTypes.allPhotos);
+            intent.putExtra(SlideshowParametersConstants.albumName, "All photos");
+//            intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, -1);
+            intent.putExtra(SlideshowParametersConstants.month, -1);
+            intent.putExtra(SlideshowParametersConstants.year, -1);
+            intent.putExtra(SlideshowParametersConstants.playInRandomOrder, shuffled);
             this.startActivity(intent);
             return;
         } else if (selectedId == R.id.rbLastYear) {
-            intent.putExtra("albumType", "lastYear");
-            intent.putExtra("albumName", "Photos from last year");
-            intent.putExtra("position", -1);
-            intent.putExtra("month", -1);
-            intent.putExtra("year", -1);
-            intent.putExtra("playInRandomOrder", shuffled);
+            intent.putExtra(SlideshowParametersConstants.albumType, SlideshowParametersConstants.AlbumTypes.lastYear);
+            intent.putExtra(SlideshowParametersConstants.albumName, "Photos from last year");
+//            intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, -1);
+            intent.putExtra(SlideshowParametersConstants.month, -1);
+            intent.putExtra(SlideshowParametersConstants.year, -1);
+            intent.putExtra(SlideshowParametersConstants.playInRandomOrder, shuffled);
             this.startActivity(intent);
             return;
         }
@@ -85,13 +85,13 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
         int year = c.get(Calendar.YEAR);
         // start the slideshow activity
 
-        intent.putExtra("albumType", "fromDate");
-        intent.putExtra("albumName", albumName);
-        intent.putExtra("position", -1);
-        intent.putExtra("month", month);
-        intent.putExtra("year", year);
-        intent.putExtra("day", day);
-        intent.putExtra("playInRandomOrder", shuffled);
+        intent.putExtra(SlideshowParametersConstants.albumType, SlideshowParametersConstants.AlbumTypes.fromDate);
+        intent.putExtra(SlideshowParametersConstants.albumName, albumName);
+//        intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, -1);
+        intent.putExtra(SlideshowParametersConstants.month, month);
+        intent.putExtra(SlideshowParametersConstants.year, year);
+        intent.putExtra(SlideshowParametersConstants.day, day);
+        intent.putExtra(SlideshowParametersConstants.playInRandomOrder, shuffled);
         this.startActivity(intent);
     }
 
@@ -140,26 +140,25 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
         Log.d(TAG,"selectedId="+selectedId);
         Intent intent;
 
-//////////////////////////////        intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
         intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
 
-        intent.putExtra("folderAbsolutePath", "not needed");
+        intent.putExtra(SlideshowParametersConstants.folderAbsolutePath, "not needed");
 
         if (selectedId == R.id.rbAllPhotos) {
-            intent.putExtra("albumType", "allPhotos");
-            intent.putExtra("albumName", "All photos");
-            intent.putExtra("position", -1);
+            intent.putExtra(SlideshowParametersConstants.albumType, SlideshowParametersConstants.AlbumTypes.allPhotos);
+            intent.putExtra(SlideshowParametersConstants.albumName, "All photos");
+//            intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, -1);
 
-            intent.putExtra("month", -1);
-            intent.putExtra("year", -1);
+            intent.putExtra(SlideshowParametersConstants.month, -1);
+            intent.putExtra(SlideshowParametersConstants.year, -1);
             this.startActivity(intent);
             return;
         } else if (selectedId == R.id.rbLastYear) {
-            intent.putExtra("albumType", "lastYear");
-            intent.putExtra("albumName", "Photos from last year");
-            intent.putExtra("position", -1);
-            intent.putExtra("month", -1);
-            intent.putExtra("year", -1);
+            intent.putExtra(SlideshowParametersConstants.albumType, SlideshowParametersConstants.AlbumTypes.lastYear);
+            intent.putExtra(SlideshowParametersConstants.albumName, "Photos from last year");
+//            intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, -1);
+            intent.putExtra(SlideshowParametersConstants.month, -1);
+            intent.putExtra(SlideshowParametersConstants.year, -1);
             this.startActivity(intent);
             return;
         }
@@ -172,12 +171,12 @@ public class GivenPeriodDetailFragment extends OptionDynamicDetailFragment {
         int year = c.get(Calendar.YEAR);
 
         // start the slideshow activity
-        intent.putExtra("albumType", "fromDate");
-        intent.putExtra("albumName", albumName);
-        intent.putExtra("position", -1);
-        intent.putExtra("month", month);
-        intent.putExtra("year", year);
-        intent.putExtra("day", day);
+        intent.putExtra(SlideshowParametersConstants.albumType, SlideshowParametersConstants.AlbumTypes.fromDate);
+        intent.putExtra(SlideshowParametersConstants.albumName, albumName);
+//        intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, -1);
+        intent.putExtra(SlideshowParametersConstants.month, month);
+        intent.putExtra(SlideshowParametersConstants.year, year);
+        intent.putExtra(SlideshowParametersConstants.day, day);
         this.startActivity(intent);
     }
 

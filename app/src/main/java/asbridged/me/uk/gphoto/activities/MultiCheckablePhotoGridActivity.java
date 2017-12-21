@@ -18,6 +18,7 @@ import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.adapter.MultiCheckablePhotoGridAdapter;
 import asbridged.me.uk.gphoto.helper.AppConstant;
 import asbridged.me.uk.gphoto.helper.LogHelper;
+import asbridged.me.uk.gphoto.helper.SlideshowParametersConstants;
 import asbridged.me.uk.gphoto.helper.Utils;
 
 import java.io.File;
@@ -78,9 +79,11 @@ public class MultiCheckablePhotoGridActivity extends Activity
         // But in that case we would have to take account of the modified flag here
         // - This indicates that a file has been deleted in the slideshow activity
         ArrayList<File> files;
-        files = Utils.getFilelist (this, parameters);
+        files = Utils.getFilelist (this, parameters, "DESC");
         imageFiles.clear();
-        imageFiles.addAll(files);
+        if (files != null) {
+            imageFiles.addAll(files);
+        }
         adapter.notifyDataSetChanged();
     }
 
@@ -108,67 +111,7 @@ public class MultiCheckablePhotoGridActivity extends Activity
         gridView = (GridView) findViewById(R.id.photo_grid_view);
 
         parameters = getIntent().getExtras();
-/*
-This is done in onResume
-        ArrayList<File> files;
-        files = Utils.getFilelist (this, parameters);
-        LogHelper.i(TAG, "get ", files.size(), " files");
-*/
-/*
-        String albumFolder = parameters.getString("folderAbsolutePath");
-        this.albumType = parameters.getString("albumType");
-        this.albumName = parameters.getString("albumName");
 
-        if (albumType.equals("bucket")) {
-            this.albumBucketID = parameters.getLong("albumBucketID");
-        } else if (albumType.equals("multipleBuckets")) {
-            this.bucketIDstrings = parameters.getStringArrayList("bucketIDs");
-        } else if (albumType.equals("lastNPhotos")) {
-            this.numPhotos = parameters.getInt("numPhotos");
-        }
-
-        this.albumMonth = parameters.getInt("month");
-        this.albumYear = parameters.getInt("year");
-        if (this.albumType.equals("fromDate")) {
-            this.albumDay = parameters.getInt("day");
-        } else {
-            this.albumDay = -1;
-        }
-        this.albumAbsolutePath = albumFolder;
-        modified = false;
-
-//// GIVES NULL REFERENCE        getActionBar().setTitle(albumName);
-
-
-
-        Log.d("DAVE", "displaying album for " + albumMonth +"/" + albumYear);
-
-        if (albumType.equals("lastYear")) {
-            files = Utils.getPhotosLastYear(this);
-        } else if (albumType.equals("lastNPhotos")) {
-            files = Utils.getLastNPhotosinMedia(this, numPhotos);
-        } else if (albumType.equals("multipleBuckets")) {
-            files = Utils.getMediaInListofBuckets(this, bucketIDstrings);
-        } else if (albumType.equals("bucket")) {
-            files = Utils.getMediaInBucketID(this, albumBucketID);
-        } else if (albumType.equals("thisYear")) {
-            files = Utils.getMediaInCurrentYear(this);
-        } else if (albumType.equals("fromDate")) {
-            files = Utils.getMediaFromDate(this,albumDay, albumMonth, albumYear);
-        } else if (albumType.equals("allPhotos")) {
-            // ALL files
-            files = Utils.getAllMedia(this);
-        } else if (albumMonth == -1 && albumYear != -1) {
-            // Year but no month ... Get all for this year
-            files = Utils.getMediaInYear(this, albumYear);
-        } else if (albumMonth == -2 && albumYear == -2) {
-            // Get RECENT files
-            files = Utils.getRecentMedia(this);
-        } else {
-            // Year and month specified ... get for this month
-            files = Utils.getMediaInMonth(this, albumMonth, albumYear);
-        }
-*/
         imageFiles = new ArrayList<>(); // files;
         // Gridview adapter
         adapter = new MultiCheckablePhotoGridAdapter(MultiCheckablePhotoGridActivity.this, imageFiles);
@@ -184,36 +127,50 @@ This is done in onResume
     public void onItemClick(AdapterView<?> parent, View view, int position,
                             long id) {
         File f = imageFiles.get(position);
+        LogHelper.i(TAG, "onItemClick ", position , ";", f.getAbsoluteFile());
+        LogHelper.i(TAG, SlideshowParametersConstants.albumType, "=", parameters.getString(SlideshowParametersConstants.albumType));
+
         Intent intent = new Intent(this, SlideshowActivity.class);
 
-        intent.putExtra("folderAbsolutePath", parameters.getString("folderAbsolutePath"));
-        intent.putExtra("albumName",parameters.getString("albumName"));
-        intent.putExtra("albumType",parameters.getString("albumType"));
-        intent.putExtra("albumBucketID", parameters.getLong("albumBucketID"));
-        intent.putStringArrayListExtra("bucketIDs", parameters.getStringArrayList("bucketIDs"));
-        intent.putExtra("position", position);
-        intent.putExtra("month", parameters.getInt("month"));
-        intent.putExtra("year", parameters.getInt("year"));
-/*
-        intent.putExtra("folderAbsolutePath", this.albumAbsolutePath);
-        intent.putExtra("albumName",this.albumName);
-        intent.putExtra("albumType",this.albumType);
-        intent.putExtra("albumBucketID", albumBucketID);
-        intent.putStringArrayListExtra("bucketIDs", this.bucketIDstrings);
-        intent.putExtra("position", position);
-        intent.putExtra("month", albumMonth);
-        intent.putExtra("year", albumYear);
-*/
+        intent.putExtra(SlideshowParametersConstants.folderAbsolutePath, parameters.getString(SlideshowParametersConstants.folderAbsolutePath));
+        intent.putExtra(SlideshowParametersConstants.albumName,parameters.getString(SlideshowParametersConstants.albumName));
+        intent.putExtra(SlideshowParametersConstants.numPhotos,parameters.getInt(SlideshowParametersConstants.numPhotos));
+        intent.putExtra(SlideshowParametersConstants.albumType, parameters.getString(SlideshowParametersConstants.albumType));
+        intent.putExtra(SlideshowParametersConstants.albumBucketID, parameters.getLong(SlideshowParametersConstants.albumBucketID));
+        intent.putStringArrayListExtra(SlideshowParametersConstants.bucketIDs, parameters.getStringArrayList(SlideshowParametersConstants.bucketIDs));
+//        intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, STARTING_PHOTO_ABSOLUTE_PATH);
+        intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, f.getAbsolutePath());
+        intent.putExtra(SlideshowParametersConstants.month, parameters.getInt(SlideshowParametersConstants.month));
+        intent.putExtra(SlideshowParametersConstants.year, parameters.getInt(SlideshowParametersConstants.year));
+        intent.putExtra(SlideshowParametersConstants.day, parameters.getInt(SlideshowParametersConstants.day));
+
         this.startActivityForResult(intent,100);
     }
 
     // listener for the long press on the grid
     public class MultiChoiceModeListener implements GridView.MultiChoiceModeListener {
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            boolean isDeleteAllowed = Utils.getIsDeleteAllowed(getApplicationContext());
+            boolean isShareAllowed = Utils.getIsShareAllowed(getApplicationContext());
+
+            if (!isDeleteAllowed && !isShareAllowed) {
+                // there is no action we can take, so no point in doing multiselect mode
+                Toast.makeText(getApplicationContext(), "No multi-select options are enabled", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
             // Inflate a menu resource providing context menu items
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.photo_grid_context_menu, menu);
+            MenuItem itemDelete = menu.findItem(R.id.menu_delete);
+            MenuItem itemShare = menu.findItem(R.id.menu_share);
 
+            if (!isDeleteAllowed) {
+                itemDelete.setVisible(false);
+            }
+            if (!isShareAllowed) {
+                itemShare.setVisible(false);
+            }
             mode.setTitle("Select Items");
 
             setActionModeSubtitle(mode);
@@ -285,7 +242,7 @@ This is done in onResume
         }
 
         emailIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, attachmentUris);
-        emailIntent.setType("text/plain");
+        emailIntent.setType("image/*");
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Photos");
         emailIntent.putExtra(Intent.EXTRA_TEXT, "I hope you enjoy these photos");
 
@@ -331,23 +288,6 @@ This is done in onResume
 //        mode.finish();
     }
 
-    // button clicked, launch slideshow for this folder
-    public void btnStartSlideshowClicked(View v)
-    {
-        Log.d("DAVE", "start slideshow for type "+this.albumType+" name = "+this.albumName);
-        Intent intent = new Intent(this, SlideshowActivity.class);
-        intent.putExtra("folderAbsolutePath", this.albumAbsolutePath);
-        intent.putExtra("albumType", this.albumType);
-        intent.putExtra("albumName", this.albumName);
-        intent.putExtra("albumBucketID", this.albumBucketID);
-        intent.putStringArrayListExtra("bucketIDs", this.bucketIDstrings);
-        intent.putExtra("numPhotos", this.numPhotos);
-        intent.putExtra("position", -1);
-        intent.putExtra("month", this.albumMonth);
-        intent.putExtra("year", this.albumYear);
-        intent.putExtra("day", this.albumDay);
-        this.startActivityForResult(intent,100);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -356,22 +296,27 @@ This is done in onResume
         return true;
     }
 
+    /**
+     * This would be used from the toolbar menu (but we don't show the toolbar)
+     * Not tested
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_play_slideshow:
-                Log.d("DAVE", "start slideshow for type "+this.albumType+" name = "+this.albumName);
                 Intent intent = new Intent(this, SlideshowActivity.class);
                 intent.putExtra("folderAbsolutePath", this.albumAbsolutePath);
-                intent.putExtra("albumType", this.albumType);
-                intent.putExtra("albumName", this.albumName);
+                intent.putExtra(SlideshowParametersConstants.albumType, this.albumType);
+                intent.putExtra(SlideshowParametersConstants.albumName, this.albumName);
                 intent.putExtra("albumBucketID", this.albumBucketID);
                 intent.putStringArrayListExtra("bucketIDs", this.bucketIDstrings);
-                intent.putExtra("numPhotos", this.numPhotos);
-                intent.putExtra("position", -1);
-                intent.putExtra("month", this.albumMonth);
-                intent.putExtra("year", this.albumYear);
-                intent.putExtra("day", this.albumDay);
+                intent.putExtra(SlideshowParametersConstants.numPhotos, this.numPhotos);
+ //               intent.putExtra("STARTING_PHOTO_ABSOLUTE_PATH", -1);
+                intent.putExtra(SlideshowParametersConstants.month, this.albumMonth);
+                intent.putExtra(SlideshowParametersConstants.year, this.albumYear);
+                intent.putExtra(SlideshowParametersConstants.day, this.albumDay);
                 this.startActivityForResult(intent,100);
                 return true;
             default:
@@ -381,4 +326,5 @@ This is done in onResume
 
         }
     }
+
 }

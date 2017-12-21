@@ -5,14 +5,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.NumberPicker;
 
 import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.activities.MultiCheckablePhotoGridActivity;
 import asbridged.me.uk.gphoto.activities.SlideshowActivity;
+import asbridged.me.uk.gphoto.helper.AppConstant;
 import asbridged.me.uk.gphoto.helper.LogHelper;
+import asbridged.me.uk.gphoto.helper.SlideshowParametersConstants;
 
 /**
  * Created by AsbridgeD on 15-Nov-17.
@@ -30,8 +31,8 @@ public class LastNPhotosDetailFragment extends OptionDynamicDetailFragment {
         View v = inflater.inflate(R.layout.fragment_detail_last_n_photos, container, false);
 
         npLastNControl = (NumberPicker) v.findViewById(R.id.npLastNControl);
-        npLastNControl.setMinValue(10);
-        npLastNControl.setMaxValue(100);
+        npLastNControl.setMinValue(AppConstant.LAST_N_PHOTOS_MIN);
+        npLastNControl.setMaxValue(AppConstant.LAST_N_PHOTOS_MAX);
         LogHelper.i(TAG, "savedInstanceState=",savedInstanceState==null?"null":"not null");
         int startingValue;
         if (savedInstanceState == null) {
@@ -53,33 +54,31 @@ public class LastNPhotosDetailFragment extends OptionDynamicDetailFragment {
 
     @Override
     public void viewAlbum() {
-        int numPhotos = npLastNControl.getValue();
+
 
         // start the slideshow activity
         Intent intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
-        intent.putExtra("folderAbsolutePath", "not needed");
-        intent.putExtra("albumName", "Most recent " + numPhotos + " photos");
-        intent.putExtra("albumType", "lastNPhotos");
-        intent.putExtra("position", -1);
-        intent.putExtra("month", -1);
-        intent.putExtra("year", -1);
-        intent.putExtra("numPhotos", numPhotos);
+        addExtrasToIntent(intent);
         this.startActivity(intent);
+    }
+
+    private void addExtrasToIntent(Intent intent) {
+        int numPhotos = npLastNControl.getValue();
+
+        intent.putExtra(SlideshowParametersConstants.folderAbsolutePath, "not needed");
+        intent.putExtra(SlideshowParametersConstants.albumName, "Most recent " + numPhotos + " photos");
+        intent.putExtra(SlideshowParametersConstants.albumType, SlideshowParametersConstants.AlbumTypes.lastNPhotos);
+//        intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, -1);
+        intent.putExtra(SlideshowParametersConstants.month, -1);
+        intent.putExtra(SlideshowParametersConstants.year, -1);
+        intent.putExtra(SlideshowParametersConstants.numPhotos, numPhotos);
     }
 
     @Override
     public void doSlideshow(boolean shuffled) {
-        int numPhotos = npLastNControl.getValue();
-
-        // start the slideshow activity
         Intent intent = new Intent(getActivity(), SlideshowActivity.class);
-        intent.putExtra("folderAbsolutePath", "not needed");
-        intent.putExtra("albumType", "lastNPhotos");
-        intent.putExtra("position", -1);
-        intent.putExtra("month", -1);
-        intent.putExtra("year", -1);
-        intent.putExtra("numPhotos", numPhotos);
-        intent.putExtra("playInRandomOrder", shuffled);
+        addExtrasToIntent(intent);
+        intent.putExtra(SlideshowParametersConstants.playInRandomOrder, shuffled);
         this.startActivity(intent);
     }
 }

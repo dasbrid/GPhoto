@@ -10,7 +10,6 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
@@ -23,6 +22,7 @@ import asbridged.me.uk.gphoto.activities.SlideshowActivity;
 import asbridged.me.uk.gphoto.adapter.AlbumListAdapter;
 import asbridged.me.uk.gphoto.classes.Album;
 import asbridged.me.uk.gphoto.helper.LogHelper;
+import asbridged.me.uk.gphoto.helper.SlideshowParametersConstants;
 import asbridged.me.uk.gphoto.helper.Utils;
 
 /**
@@ -74,37 +74,16 @@ public class AlbumsDetailFragment extends OptionDynamicDetailFragment {
 
     @Override
     public void doSlideshow(boolean shuffled) {
-        // start the slideshow activity for the selected album
-        SparseBooleanArray checked = lvAlbumList.getCheckedItemPositions();
-        String albumNames = "";
-        ArrayList<Album> selectedItems = new ArrayList<Album>();
-        ArrayList<String> selectedBucketIDs = new ArrayList<String>();
-        for (int i = 0; i < checked.size(); i++) {
-            // Item position in adapter
-            int position = checked.keyAt(i);
-            if (checked.valueAt(i)) {
-                Album selectedItem = albumAdapter.getAlbum(position);
-                if (!albumNames.isEmpty())
-                    albumNames = albumNames + ", ";
-                albumNames = albumNames + selectedItem.getName();
-                selectedItems.add(selectedItem);
-                selectedBucketIDs.add(Long.toString(selectedItem.getBucketID()));
-            }
-        }
 
-        if (selectedItems.size() > 0 ) {
-            Intent intent = new Intent(getActivity(), SlideshowActivity.class);
-            intent.putExtra("albumType", "multipleBuckets");
-            intent.putExtra("albumName", albumNames);
-            intent.putExtra("position", -1);
-            intent.putStringArrayListExtra("bucketIDs", selectedBucketIDs);
-            intent.putExtra("playInRandomOrder", shuffled);
+        Intent intent = new Intent(getActivity(), SlideshowActivity.class);
+        int numitems = addExtrasToIntent(intent);
+        intent.putExtra(SlideshowParametersConstants.playInRandomOrder, shuffled);
+        if (numitems > 0 ) {
             this.startActivity(intent);
         }
     }
 
-
-    public void viewAlbum() {
+    private int addExtrasToIntent(Intent intent) {
         SparseBooleanArray checked = lvAlbumList.getCheckedItemPositions();
         String albumNames = "";
         ArrayList<Album> selectedItems = new ArrayList<Album>();
@@ -122,14 +101,18 @@ public class AlbumsDetailFragment extends OptionDynamicDetailFragment {
             }
         }
 
-        if (selectedItems.size() > 0 ) {
-            Intent intent;
+        intent.putExtra(SlideshowParametersConstants.albumType, SlideshowParametersConstants.AlbumTypes.multipleBuckets);
+        intent.putExtra(SlideshowParametersConstants.albumName, albumNames);
+//        intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, -1);
+        intent.putStringArrayListExtra(SlideshowParametersConstants.bucketIDs, selectedBucketIDs);
+        return selectedItems.size();
+    }
 
-            intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
-
-            intent.putExtra("albumType", "multipleBuckets");
-            intent.putExtra("albumName", albumNames);
-            intent.putStringArrayListExtra("bucketIDs", selectedBucketIDs);
+    public void viewAlbum() {
+        Intent intent;
+        intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
+        int numitems = addExtrasToIntent(intent);
+        if (numitems > 0 ) {
             this.startActivity(intent);
         }
     }

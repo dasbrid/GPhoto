@@ -2,21 +2,15 @@ package asbridged.me.uk.gphoto.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
 import android.widget.ImageView;
-import asbridged.me.uk.gphoto.activities.SlideshowActivity;
-import asbridged.me.uk.gphoto.classes.CheckedFile;
 import asbridged.me.uk.gphoto.classes.ImageDownloader;
 import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.controls.CheckableLinearLayout;
-
 import java.io.File;
 import java.util.ArrayList;
 

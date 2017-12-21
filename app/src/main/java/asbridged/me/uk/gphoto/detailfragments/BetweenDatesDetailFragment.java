@@ -14,6 +14,7 @@ import asbridged.me.uk.gphoto.R;
 import asbridged.me.uk.gphoto.activities.MultiCheckablePhotoGridActivity;
 import asbridged.me.uk.gphoto.activities.SlideshowActivity;
 import asbridged.me.uk.gphoto.helper.LogHelper;
+import asbridged.me.uk.gphoto.helper.SlideshowParametersConstants;
 
 /**
  * Created by AsbridgeD on 15-Nov-17.
@@ -49,35 +50,15 @@ public class BetweenDatesDetailFragment extends OptionDynamicDetailFragment {
     }
 
     public void viewAlbum() {
-        // get the from date
-        int day = dpFromDate.getDayOfMonth();
-        int month = dpFromDate.getMonth();
-        int year =  dpFromDate.getYear();
-
-        // get the to date
-        int toDay = dpToDate.getDayOfMonth();
-        int toMonth = dpToDate.getMonth();
-        int toYear =  dpToDate.getYear();
-
         Intent intent;
 
         intent = new Intent(getActivity(), MultiCheckablePhotoGridActivity.class);
 
-        intent.putExtra("folderAbsolutePath", "not needed");
-        intent.putExtra("albumName", "Photos taken between " + day + "/" + (month+1) + "/" + year + " and " + toDay + "/" + (toMonth+1) + "/" + toYear);
-        intent.putExtra("albumType", "betweenDates");
-        intent.putExtra("position", -1);
-        intent.putExtra("month", month);
-        intent.putExtra("year", year);
-        intent.putExtra("day", day);
-        intent.putExtra("tomonth", toMonth);
-        intent.putExtra("toyear", toYear);
-        intent.putExtra("today", toDay);
+        addExtrasToIntent(intent);
         this.startActivity(intent);
     }
 
-    @Override
-    public void doSlideshow(boolean shuffled) {
+    private void addExtrasToIntent(Intent intent) {
         // get the date
         int day = dpFromDate.getDayOfMonth();
         int month = dpFromDate.getMonth();
@@ -88,18 +69,24 @@ public class BetweenDatesDetailFragment extends OptionDynamicDetailFragment {
         int toMonth = dpToDate.getMonth();
         int toYear =  dpToDate.getYear();
 
+        intent.putExtra("folderAbsolutePath", "not needed");
+        intent.putExtra(SlideshowParametersConstants.albumType, SlideshowParametersConstants.AlbumTypes.betweenDates);
+//        intent.putExtra(SlideshowParametersConstants.STARTING_PHOTO_ABSOLUTE_PATH, -1);
+        intent.putExtra(SlideshowParametersConstants.month, month);
+        intent.putExtra(SlideshowParametersConstants.year, year);
+        intent.putExtra(SlideshowParametersConstants.day, day);
+        intent.putExtra(SlideshowParametersConstants.tomonth, toMonth);
+        intent.putExtra(SlideshowParametersConstants.toyear, toYear);
+        intent.putExtra(SlideshowParametersConstants.today, toDay);
+
+    }
+
+    @Override
+    public void doSlideshow(boolean shuffled) {
         // start the slideshow activity
         Intent intent = new Intent(getActivity(), SlideshowActivity.class);
-        intent.putExtra("folderAbsolutePath", "not needed");
-        intent.putExtra("albumType", "betweenDates");
-        intent.putExtra("position", -1);
-        intent.putExtra("month", month);
-        intent.putExtra("year", year);
-        intent.putExtra("day", day);
-        intent.putExtra("tomonth", toMonth);
-        intent.putExtra("toyear", toYear);
-        intent.putExtra("today", toDay);
-        intent.putExtra("playInRandomOrder", shuffled);
+        addExtrasToIntent(intent);
+        intent.putExtra(SlideshowParametersConstants.playInRandomOrder, shuffled);
         this.startActivity(intent);
     }
 }

@@ -11,9 +11,14 @@ import android.graphics.*;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
+
+import asbridged.me.uk.gphoto.activities.SettingsActivity;
 import asbridged.me.uk.gphoto.classes.Album;
+import asbridged.me.uk.gphoto.classes.OptionContent;
 
 /**
  * Created by David on 10/11/2015.
@@ -30,34 +35,24 @@ public class Utils {
         String ssd = sharedPref.getString("lastDisplayed", "nothing");
         return ssd;
     }
-/*
-    public static void setLastDisplayed(Context context,String ssd)
-    {
-        SharedPreferences sharedPref = context.getSharedPreferences(PREFS_LOCATION,Context.MODE_PRIVATE);
-        SharedPreferences.Editor settingsEditor = sharedPref.edit();
-        settingsEditor.putString("lastDisplayed", ssd);
-        settingsEditor.commit();
-    }
 
-
-    public static void setImageFilename(Context context,String ssd)
-    {
-        SharedPreferences sharedPref = context.getSharedPreferences(PREFS_LOCATION,Context.MODE_PRIVATE);
-        SharedPreferences.Editor settingsEditor = sharedPref.edit();
-        settingsEditor.putString("imageFilename", ssd);
-        settingsEditor.commit();
-    }
-
-    public static String getImageFilename(Context context)
-    {
-        SharedPreferences sharedPref = context.getSharedPreferences(PREFS_LOCATION,Context.MODE_PRIVATE);
-
-        String ssd = sharedPref.getString("imageFilename", "none");
-        return ssd;
-    }
-*/
     private static final int MIN_SLIDESHOW_DELAY_SECS = 1;
     private static final int MAX_SLIDESHOW_DELAY_SECS = 10;
+
+    public static boolean getIsShareAllowed(Context context)
+    {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean isShareAllowed = sharedPref.getBoolean(SettingsActivity.KEY_IS_SHARE_ALLOWED, false);
+        LogHelper.i(TAG, "getIsShareAllowed=", isShareAllowed);
+        return isShareAllowed;
+    }
+
+    public static boolean getIsDeleteAllowed(Context context)
+    {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean isDeleteAllowed = sharedPref.getBoolean(SettingsActivity.KEY_IS_DELETE_ALLOWED, false);
+        return isDeleteAllowed;
+    }
 
     public static int getSlideshowDelayInSeconds(Context context)
     {
@@ -190,14 +185,15 @@ public class Utils {
     }
 
     public static void filterBadFiles(ArrayList<File> fileList) {
-
-        ListIterator listIterator = fileList.listIterator();
-        File file;
-        while (listIterator.hasNext()) {
-            file = (File) listIterator.next();
-            if (!file.exists()) {
-                LogHelper.i(TAG, "filtering bad file:", file.getAbsoluteFile());
-                listIterator.remove();
+        if (fileList != null) {
+            ListIterator listIterator = fileList.listIterator();
+            File file;
+            while (listIterator.hasNext()) {
+                file = (File) listIterator.next();
+                if (!file.exists()) {
+                    LogHelper.i(TAG, "filtering bad file:", file.getAbsoluteFile());
+                    listIterator.remove();
+                }
             }
         }
     }
@@ -220,105 +216,18 @@ public class Utils {
         return decodeFileToSize(f,AppConstant.THUMB_SIZE, AppConstant.THUMB_SIZE );
     }
 
-    // Get all the media in specified bucket NAME (not reliable if buckets have same names (e.g different subfolders with same name)
-    public static ArrayList<File> getMediaInBucket(Context context, String bucketDisplayName )
-    {
-
-        String photoDatePreference;
-        String storedpref;
-        storedpref = Utils.getphotoDatePreference(context);
-        if (Utils.getphotoDatePreference(context).equals("DateTaken"))
-            photoDatePreference = MediaStore.Images.Media.DATE_TAKEN;
-        else
-            photoDatePreference = MediaStore.Images.Media.DATE_ADDED;
-
-        // which image properties are we querying
-        String[] projection = new String[]{
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                MediaStore.Images.Media.DATA,
-                photoDatePreference
-        };
-
-        // Get the base URI for ...
-        Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-
-        String[] selectionArgs = null;
-        String selectionClause = null;
-
-        if (bucketDisplayName != null) {
-            // get media in specific bucket
-            selectionArgs = new String[1];
-            selectionArgs[0] = bucketDisplayName;
-            selectionClause = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " = ?";
-        }
-
-        String BUCKET_ORDER_BY = photoDatePreference + " DESC"; // newest photo first
-
-        ArrayList<File> files = new ArrayList<File>();
-
-        // Make the query.
-        Cursor cur = context.getContentResolver().query(
-                images,     // URI
-                projection, // Which columns to return
-                selectionClause,       // WHERE clause  (null = all rows)
-                selectionArgs,       // Selection arguments (null = none)
-                BUCKET_ORDER_BY        // Ordering
-        );
-
-            if (cur.getCount() == 0) {
-                cur.close();
-                return null;
-            }
-
-            try {
-                if (cur.moveToFirst()) {
-                    String bucket;
-                    String dateTakenString;
-                    String data;
-
-                    Date dateTaken;
-
-                    int bucketColumn = cur.getColumnIndex(
-                            MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-
-                    int dateColumn = cur.getColumnIndex(photoDatePreference);
-
-                    int dataColumn = cur.getColumnIndex(
-                            MediaStore.Images.Media.DATA);
-
-                    do {
-                        // Get the field values
-                        bucket = cur.getString(bucketColumn);
-                        dateTakenString = cur.getString(dateColumn);
-                        dateTaken = new Date(Long.parseLong(dateTakenString));
-
-                        data = cur.getString(dataColumn);
-
-                        files.add(new File(data));
-
-                    } while (cur.moveToNext());
-                }
-            } finally {
-                cur.close();
-            }
-        return files;
-    }
-
     // Get all the media in specified list of buckets - buckets identified by bucket ID (more reliable if buckets have same names (e.g different subfolders with same name)
-    public static ArrayList<File> getMediaInListofBuckets(Context context, ArrayList<String> bucketIDStringss ) {
+    public static ArrayList<File> getMediaInListofBuckets(Context context, ArrayList<String> bucketIDStrings, String orderxxx ) {
         ArrayList<File> files = new ArrayList<File>();
-        for (String bucketIDStrings : bucketIDStringss) {
-            long bucketID = Long.parseLong(bucketIDStrings);
-            files.addAll(getMediaInBucketID(context, bucketID));
+        for (String bucketIDString : bucketIDStrings) {
+            long bucketID = Long.parseLong(bucketIDString);
+            files.addAll(getMediaInBucketID(context, bucketID, orderxxx));
         }
         return files;
     }
-
-
 
     // Get all the media in specified bucket - identified by  bucket ID (more reliable if buckets have same names (e.g different subfolders with same name)
-    public static ArrayList<File> getMediaInBucketID(Context context, long bucketID )
+    public static ArrayList<File> getMediaInBucketID(Context context, long bucketID, String orderxxx )
     {
 
         String photoDatePreference;
@@ -346,7 +255,7 @@ public class Utils {
         selectionArgs[0] = Long.toString(bucketID);
         String selectionClause = MediaStore.Images.Media.BUCKET_ID + " = ?";
 
-        String BUCKET_ORDER_BY = photoDatePreference + " DESC"; // newest photo first
+        String BUCKET_ORDER_BY = photoDatePreference + " " + orderxxx;
 
         ArrayList<File> files = new ArrayList<File>();
 
@@ -457,120 +366,11 @@ public class Utils {
         return albums;
     }
 
-    public static ArrayList<Album> getAlbumsFromMediaGroupedByMonth(Context context) {
-        return getAlbumsFromMediaGrouped(context, true);
-    }
-
-    public static ArrayList<Album> getAlbumsFromMediaGroupedByYear(Context context) {
-        return getAlbumsFromMediaGrouped(context, false);
-    }
-
-    // gets ALBUMS (not images) containing all images grouped by Year, and optionally month
-    public static ArrayList<Album> getAlbumsFromMediaGrouped(Context context, boolean groupbyMonth) {
-
-        ArrayList<Album> albums = new ArrayList<>();
-
-        String photoDatePreference;
-        String storedpref;
-        storedpref = Utils.getphotoDatePreference(context);
-        if (Utils.getphotoDatePreference(context).equals("DateTaken"))
-            photoDatePreference = MediaStore.Images.Media.DATE_TAKEN;
-        else
-            photoDatePreference = MediaStore.Images.Media.DATE_ADDED;
-
-        String[] PROJECTION_BUCKET = {
-                MediaStore.Images.Media.BUCKET_ID,
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                photoDatePreference,
-                MediaStore.Images.Media.DATA };
-
-        String BUCKET_GROUP_BY = null; // no group by
-
-
-        String BUCKET_ORDER_BY = photoDatePreference + " DESC"; // newest photo first, therefore newest bucket first
-
-        Uri images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        int numimages = 0;
-        int numimagesWithDate = 0;
-
-        Cursor cur = context.getContentResolver().query(
-                images,
-                PROJECTION_BUCKET,
-                BUCKET_GROUP_BY,
-                null,
-                BUCKET_ORDER_BY);
-
-        try {
-            if (cur.moveToFirst()) {
-                String bucketname;
-                String date;
-                String data;
-                long bucketId;
-                int bucketColumn = cur.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-                int dateColumn = cur.getColumnIndex(photoDatePreference);
-                int dataColumn = cur.getColumnIndex(MediaStore.Images.Media.DATA);
-                int bucketIdColumn = cur.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
-
-                int currentMonth = -1;
-                int currentYear = -1;
-
-
-                do {
-                    // Get the field values
-                    bucketname = cur.getString(bucketColumn);
-                    date = cur.getString(dateColumn);
-                    data = cur.getString(dataColumn);
-                    bucketId = cur.getInt(bucketIdColumn);
-
-                    numimages++;
-
-                    if (date != null) {
-                        long milliseconds = Long.parseLong(date); // since 1/1/1970
-                        Calendar cl = Calendar.getInstance();
-                        cl.setTimeInMillis(milliseconds);
-                        int month = cl.get(Calendar.MONTH);
-                        int year = cl.get(Calendar.YEAR);
-
-                        numimagesWithDate++;
-
-                        if (bucketname != null && bucketname.length() > 0) {
-                            boolean newGroup = false;
-                            if (groupbyMonth == false) {
-                                newGroup = (year != currentYear);
-                            } else {
-                                newGroup = (month != currentMonth || year != currentYear);
-                            }
-                            if (newGroup) {
-                                currentMonth = month;
-                                currentYear = year;
-                                String albumdate;
-                                File f = new File(data);
-                                int albumMonth;
-                                if (groupbyMonth) {
-                                    albumdate = cl.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.US) + " " + year;
-                                    albumMonth = month;
-                                } else {
-                                    albumdate = Integer.toString(year);
-                                    albumMonth = -1;
-                                }
-                                Album album = new Album(albumdate, year, albumMonth, f, f.getParentFile());
-                                albums.add(album);
-                            }
-                        }
-                    }
-                } while (cur.moveToNext());
-            }
-        } finally {
-            cur.close();
-        }
-        return albums;
-    }
-
     // Get media in a given month (of a given year)
-    public static ArrayList<File> getMediaInMonth(Context context, int month, int year) {
+    public static ArrayList<File> getMediaInMonth(Context context, int month, int year, String orderxxx) {
         long minDate;
         long maxDate;
-
+        LogHelper.i(TAG, "getMediaInMonth ", month, "/", year);
         Calendar c = Calendar.getInstance();
         c.clear(); // set all fields (HH:MM:SS) to 0
         c.set(year, month, 1);
@@ -578,18 +378,18 @@ public class Utils {
         c.add(Calendar.MONTH, 1);
         maxDate = c.getTimeInMillis();
 
-        return getMediaInDateRange(context, minDate, maxDate);
+        return getMediaInDateRange(context, minDate, maxDate, orderxxx);
     }
 
-    public static ArrayList<File> getPhotosLastYear(Context context) {
+    public static ArrayList<File> getPhotosLastYear(Context context, String orderxxx) {
         Calendar c = Calendar.getInstance();
         int year = c.get(Calendar.YEAR)-1;
-        return getMediaInYear(context, year);
+        return getMediaInYear(context, year, orderxxx);
     }
 
     // Get all media in specified year
     // Calculates min and max dates and gets data inbetween
-    public static ArrayList<File> getMediaInYear(Context context, int year) {
+    public static ArrayList<File> getMediaInYear(Context context, int year, String orderxxx) {
         long minDate;
         long maxDate;
 
@@ -598,33 +398,37 @@ public class Utils {
         minDate = c.getTimeInMillis();
         c.set(year+1, 0, 1, 0, 0, 0);
         maxDate = c.getTimeInMillis();
-        return getMediaInDateRange(context, minDate, maxDate);
+        return getMediaInDateRange(context, minDate, maxDate, orderxxx);
     }
 
     // Just get all the media. No dates specified
-    public static ArrayList<File> getAllMedia(Context context) {
-        return getMediaInDateRange(context, -1, -1);
+    public static ArrayList<File> getAllMedia(Context context, String orderxxx) {
+        return getMediaInDateRange(context, -1, -1, orderxxx);
     }
 
-    // Just get all the media. No dates specified
-    public static ArrayList<File> getLastNPhotosinMedia(Context context, int n) {
-        return getMediaInDateRange(context, -1, -1, n);
+    // get last n photos
+    public static ArrayList<File> getLastNPhotosinMedia(Context context, int n, String orderxxx) {
+        ArrayList<File> mostRecentNfiles = getMediaInDateRange(context, -1, -1, n, "DESC" /* for the Last N photos we ALWAYS want desc order (most recent first)*//*orderxxx*/);
+        if (!(orderxxx.equals("DESC"))) {
+            Collections.reverse(mostRecentNfiles);
+        }
+        return mostRecentNfiles;
     }
 
 
     // Get all media since a certain tima ago (e.g. one year)
-    public static ArrayList<File> getRecentMedia(Context context) {
+    public static ArrayList<File> getRecentMedia(Context context, String orderxxx) {
         long minDate;
 
         Calendar c = Calendar.getInstance();
         c.add(Calendar.YEAR, -1);
         minDate = c.getTimeInMillis();
-        return getMediaInDateRange(context, minDate, -1);
+        return getMediaInDateRange(context, minDate, -1, orderxxx);
     }
 
     // Get all media in specified year
     // Calculates min and max dates and gets data in between
-    public static ArrayList<File> getMediaInCurrentYear(Context context) {
+    public static ArrayList<File> getMediaInCurrentYear(Context context, String orderxxx) {
         long minDate;
 
         Calendar c = Calendar.getInstance();
@@ -633,18 +437,18 @@ public class Utils {
 
         c.set(currentYear, 0, 1, 0, 0, 0);
         minDate = c.getTimeInMillis();
-        return getMediaInDateRange(context, minDate, -1);
+        return getMediaInDateRange(context, minDate, -1, orderxxx);
     }
 
     // Get all media since a certain time ago (e.g. one year)
-    public static ArrayList<File> getMediaFromDate(Context context, int day, int month, int year) {
+    public static ArrayList<File> getMediaFromDate(Context context, int day, int month, int year, String orderxxx) {
         long minDate;
 
         Calendar c = Calendar.getInstance();
         c.clear();
         c.set(year, month, day);
         minDate = c.getTimeInMillis();
-        return getMediaInDateRange(context, minDate, -1);
+        return getMediaInDateRange(context, minDate, -1, orderxxx);
     }
 
     /**
@@ -658,7 +462,7 @@ public class Utils {
      * @param toyear
      * @return
      */
-    public static ArrayList<File> getMediaBetweenDates(Context context, int day, int month, int year, int today, int tomonth, int toyear) {
+    public static ArrayList<File> getMediaBetweenDates(Context context, int day, int month, int year, int today, int tomonth, int toyear, String orderxxx) {
         long minDate;
         long maxDate;
 
@@ -670,20 +474,20 @@ public class Utils {
         c.set(toyear, tomonth, today);
         c.add(Calendar.HOUR, 24);
         maxDate = c.getTimeInMillis();
-        return getMediaInDateRange(context, minDate, maxDate);
+        return getMediaInDateRange(context, minDate, maxDate, orderxxx);
     }
 
     // Get Media between two dates (using Query) from description provider
     // Used by other methods
     // If maxdate is -1 then no max date is used (up to present date)
     // If minDate and maxdate are both -1 then no clause is used and we get all media
-    public static ArrayList<File> getMediaInDateRange(Context context, long minDate, long maxDate) {
-        return getMediaInDateRange(context, minDate, maxDate, 0);
+    public static ArrayList<File> getMediaInDateRange(Context context, long minDate, long maxDate, String orderxxx) {
+        return getMediaInDateRange(context, minDate, maxDate, 0, orderxxx);
     }
 
     // Get Media between two dates and optionally limited to n items (using Query) from description provider
     // If limit = 0 then no limit
-    public static ArrayList<File> getMediaInDateRange(Context context, long minDate, long maxDate, int limit) {
+    public static ArrayList<File> getMediaInDateRange(Context context, long minDate, long maxDate, int limit, String orderxxx) {
         // which image properties are we querying
         String[] projection = new String[]{
                 MediaStore.Images.Media._ID,
@@ -705,7 +509,7 @@ public class Utils {
         else
             photoDatePreference = MediaStore.Images.Media.DATE_ADDED;
 
-        String orderBy = photoDatePreference + " desc";
+        String orderBy = photoDatePreference + " " + orderxxx;
 
         if (limit != 0)
         {
@@ -725,7 +529,7 @@ public class Utils {
             selectionArgs = new String[1];
             selectionArgs[0] = Long.toString(minDate); // min date
             selectionClause = photoDatePreference + ">=?";
-            Log.d("DAVE", "recent files:"+selectionClause);
+            Log.d(TAG, "recent files:"+selectionClause);
         }
 
         // Make the query.
@@ -785,175 +589,68 @@ public class Utils {
      * @param parameters
      * @return list of files
      */
-    public static ArrayList<File> getFilelist(Context context, Bundle parameters) {
+    public static ArrayList<File> getFilelist(Context context, Bundle parameters, String orderxxx) {
 
         ArrayList<File> filelist;
-        String albumFolder = parameters.getString("folderAbsolutePath");
+        String albumFolder = parameters.getString(SlideshowParametersConstants.folderAbsolutePath);
 
-        String albumType = parameters.getString("albumType");
-        int albumMonth = parameters.getInt("month");
-        int albumYear = parameters.getInt("year");
+        String albumType = parameters.getString(SlideshowParametersConstants.albumType);
+        int albumMonth = parameters.getInt(SlideshowParametersConstants.month);
+        int albumYear = parameters.getInt(SlideshowParametersConstants.year);
         int albumDay = -1;
-        if (albumType.equals("fromDate") || albumType.equals("betweenDates")) {
-            albumDay = parameters.getInt("day");
+        if (albumType.equals(SlideshowParametersConstants.AlbumTypes.fromDate) || albumType.equals(SlideshowParametersConstants.AlbumTypes.betweenDates)) {
+            albumDay = parameters.getInt(SlideshowParametersConstants.day);
         }
 
         int albumMonthTo = -1;
         int albumDayTo = -1;
         int albumYearTo = -1;
-        if (albumType.equals("betweenDates")) {
-            albumMonthTo = parameters.getInt("tomonth");
-            albumYearTo = parameters.getInt("toyear");
-            albumDayTo = parameters.getInt("today");
+        if (albumType.equals(SlideshowParametersConstants.AlbumTypes.betweenDates)) {
+            albumMonthTo = parameters.getInt(SlideshowParametersConstants.tomonth);
+            albumYearTo = parameters.getInt(SlideshowParametersConstants.toyear);
+            albumDayTo = parameters.getInt(SlideshowParametersConstants.today);
         }
 
         long albumBucketID = -1;
         int numPhotos = 0;
         ArrayList<String> bucketIDstrings = new ArrayList<String>();
-        if (albumType.equals("bucket")) {
-            albumBucketID = parameters.getLong("albumBucketID");
-        } else if (albumType.equals("multipleBuckets")) {
-            bucketIDstrings = parameters.getStringArrayList("bucketIDs");
-        } else if (albumType.equals("lastNPhotos")) {
-            numPhotos = parameters.getInt("numPhotos");
+        if (albumType.equals(SlideshowParametersConstants.AlbumTypes.bucket)) {
+            albumBucketID = parameters.getLong(SlideshowParametersConstants.albumBucketID);
+        } else if (albumType.equals(SlideshowParametersConstants.AlbumTypes.multipleBuckets)) {
+            bucketIDstrings = parameters.getStringArrayList(SlideshowParametersConstants.bucketIDs);
+        } else if (albumType.equals(SlideshowParametersConstants.AlbumTypes.lastNPhotos)) {
+            numPhotos = parameters.getInt(SlideshowParametersConstants.numPhotos);
         }
 
-        if (albumType.equals("lastYear")) {
-            filelist = Utils.getPhotosLastYear(context);
-        } else if (albumType.equals("lastNPhotos")) {
-            filelist = Utils.getLastNPhotosinMedia(context, numPhotos);
-        } else if (albumType.equals("multipleBuckets")) {
-            filelist = Utils.getMediaInListofBuckets(context, bucketIDstrings);
-        } else if (albumType.equals("bucket")) {
-            filelist = Utils.getMediaInBucketID(context, albumBucketID);
-        } else if (albumType.equals("thisYear")) {
-            filelist = Utils.getMediaInCurrentYear(context);
-        } else if (albumType.equals("fromDate")) {
-            filelist = Utils.getMediaFromDate(context,albumDay, albumMonth, albumYear);
-        } else if (albumType.equals("betweenDates")) {
-            filelist = Utils.getMediaBetweenDates(context,albumDay, albumMonth, albumYear, albumDayTo, albumMonthTo, albumYearTo );
-        } else if (albumType.equals("allPhotos")) {
-            filelist = Utils.getAllMedia(context);
+        if (albumType.equals(SlideshowParametersConstants.AlbumTypes.lastYear)) {
+            filelist = Utils.getPhotosLastYear(context, orderxxx);
+        } else if (albumType.equals(SlideshowParametersConstants.AlbumTypes.lastNPhotos)) {
+            filelist = Utils.getLastNPhotosinMedia(context, numPhotos, orderxxx);
+        } else if (albumType.equals(SlideshowParametersConstants.AlbumTypes.multipleBuckets)) {
+            filelist = Utils.getMediaInListofBuckets(context, bucketIDstrings, orderxxx);
+        } else if (albumType.equals(SlideshowParametersConstants.AlbumTypes.bucket)) {
+            filelist = Utils.getMediaInBucketID(context, albumBucketID, orderxxx);
+        } else if (albumType.equals(SlideshowParametersConstants.AlbumTypes.thisYear)) {
+            filelist = Utils.getMediaInCurrentYear(context, orderxxx);
+        } else if (albumType.equals(SlideshowParametersConstants.AlbumTypes.fromDate)) {
+            filelist = Utils.getMediaFromDate(context,albumDay, albumMonth, albumYear, orderxxx);
+        } else if (albumType.equals(SlideshowParametersConstants.AlbumTypes.betweenDates)) {
+            filelist = Utils.getMediaBetweenDates(context,albumDay, albumMonth, albumYear, albumDayTo, albumMonthTo, albumYearTo, orderxxx );
+        } else if (albumType.equals(SlideshowParametersConstants.AlbumTypes.allPhotos)) {
+            filelist = Utils.getAllMedia(context, orderxxx);
         }
         else if (albumMonth == -1 && albumYear != -1) {
             // Year but no month ... Get all for this year
-            filelist = Utils.getMediaInYear(context, albumYear);
+            filelist = Utils.getMediaInYear(context, albumYear, orderxxx);
         } else if (albumMonth == -2 && albumYear == -2) {
             // Get RECENT files
-            filelist = Utils.getRecentMedia(context);
+            filelist = Utils.getRecentMedia(context, orderxxx);
         } else {
-            filelist = Utils.getMediaInMonth(context, albumMonth, albumYear);
+            filelist = Utils.getMediaInMonth(context, albumMonth, albumYear, orderxxx);
         }
 
         filterBadFiles(filelist);
         return filelist;
     }
-
-/*
-
-    // get all FILES in path (including all files in subfolders)
-    // TODO: only return compatible (image) files
-    public static ArrayList<File> getAllFiles(String absolutePath)
-    {
-        ArrayList<File> files = new ArrayList<File>();
-        File rootFolder = new File(absolutePath);
-        if (!rootFolder.isDirectory())
-            return files;
-
-        addFilesToList(files, rootFolder);
-        return files;
-    }
-
-    // recursion method for getting FILES in a folder
-    private static void addFilesToList(ArrayList<File> fileList, File folder) {
-        if (folder.isFile())
-        {
-            if (isImageFile(folder)) {
-                fileList.add(folder);
-            }
-            return;
-        }
-
-        File[] listFiles = folder.listFiles();
-        if (listFiles == null)
-            return;
-
-        for (File file : listFiles) {
-            addFilesToList(fileList, file);
-        }
-    }
-
-    public static ArrayList<Album> getAlbumsFromFolders(String rootPhotosFolder)
-    {
-        ArrayList<Album> albums = new ArrayList<Album>();
-        File rootFolder = new File(rootPhotosFolder);
-        addAlbumsToList(albums, rootFolder);
-        return albums;
-    }
-
-    public static int addAlbumsToList(ArrayList<Album> albumList, File folder) {
-        int numfiles = 0;
-        File[] listFiles = folder.listFiles();
-        if (listFiles == null)
-            return numfiles;
-        // loop through all files
-        for (File file : listFiles) {
-            if (file.isFile()) {
-                numfiles++;
-            }
-            if (file.isDirectory()) {
-                numfiles=numfiles+addAlbumsToList(albumList, file);
-            }
-        }
-        if (numfiles > 0) {
-            File firstfile = getFirstImageInFolder(folder);
-            Album a = new Album(folder.getName(), firstfile, folder);
-            albumList.add(a);
-        }
-        return numfiles;
-    }
-
-    // TODO: first image may be in a subfolder
-    public static File getFirstImageInFolder(File folder)
-    {
-        if (!folder.isDirectory()) {
-            return null;
-        }
-        File[] listFiles = folder.listFiles();
-        // first look for a file in this folder
-        for (File file : listFiles) {
-            if (file.isFile() && isImageFile(file)) {
-                return file;
-            }
-        }
-
-        File file;
-        for (File subfolder : listFiles) {
-            if (subfolder.isDirectory()) {
-                file = getFirstImageInFolder(subfolder);
-                if (file != null)
-                return file;
-            }
-        }
-        return null;
-    }
-
-
-    public static boolean isImageFile(File file)
-    {
-        String filePath = file.getAbsolutePath();
-        // Check supported file extensions
-        String ext = filePath.substring((filePath.lastIndexOf(".") + 1),
-                filePath.length());
-
-        if (AppConstant.FILE_EXTN
-                .contains(ext.toLowerCase(Locale.getDefault())))
-            return true;
-        else
-            return false;
-
-    }
-     */
-
 
 }
